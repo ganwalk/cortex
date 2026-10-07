@@ -2,7 +2,8 @@
 
 | Arquivo | Origem |
 |---|---|
-| `campanha-*.webp` | Peça da Prova de Bolsas do Colégio Córtex (`referencias/prova-de-bolsas.jpg`), recortada sem o texto. Foto do colégio. |
+| `aluna-*.webp` | Peça da Prova de Bolsas do Colégio Córtex (`referencias/prova-de-bolsas.jpg`), recortada em uma aluna, sem o texto. Usada na hero. |
+| `campanha-*.webp` | A mesma peça, recortada nos três alunos, sem o texto. Usada como imagem de compartilhamento. |
 | `simulado-*.webp` | Pexels, https://www.pexels.com/photo/6684219/ |
 | `redacao-*.webp` | Pexels, https://www.pexels.com/photo/6683673/ |
 | `plantao-*.webp` | Pexels, https://www.pexels.com/photo/16420352/ |

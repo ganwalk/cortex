@@ -36,7 +36,7 @@ Regras de texto e de contribuição: [`CLAUDE.md`](CLAUDE.md).
 
 ### Hero
 
-O site abre com a hero dentro de uma moldura branca arredondada, e o menu é a faixa de cima dessa moldura. Ao rolar, a moldura se fecha e o menu vira uma barra flutuante. O título é a frase da campanha (“Você já sabe onde quer chegar. Agora escolha onde vai começar.”). A foto dos alunos da campanha entra no lugar da folha marinho do símbolo; o X fica no canto, sobre o verde-água, para não cobrir rostos. O quadrado e o X entram por último, como quem marca a resposta; `prefers-reduced-motion` desliga a animação.
+O site abre com a hero dentro de uma moldura branca arredondada, e o menu é a faixa de cima dessa moldura. Ao rolar, a moldura se fecha e o menu vira uma barra flutuante. O título é a frase da campanha (“Você já sabe onde quer chegar. Agora escolha onde vai começar.”). Uma aluna da foto da campanha entra no lugar da folha marinho do símbolo; o X fica no canto, sobre o verde-água. A foto original é pequena (o recorte tem 510 px de largura); com a foto em alta resolução, a hero fica mais nítida. O quadrado e o X entram por último, como quem marca a resposta; `prefers-reduced-motion` desliga a animação.
 
 ### Seções
 
@@ -53,7 +53,7 @@ O site abre com a hero dentro de uma moldura branca arredondada, e o menu é a f
 
 ## Fotos
 
-`public/img/CREDITOS.md` lista a origem de cada foto. A da hero é da campanha da Prova de Bolsas do colégio. As outras são do Pexels e mostram pessoas que não são do Córtex: servem para a demonstração e devem ser trocadas por fotos do colégio.
+`public/img/CREDITOS.md` lista a origem de cada foto. A da hero é um recorte da campanha da Prova de Bolsas do colégio. As outras são do Pexels e mostram pessoas que não são do Córtex: servem para a demonstração e devem ser trocadas por fotos do colégio.
 
 ## Dados
 
