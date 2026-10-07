@@ -1,11 +1,12 @@
 @import "@fontsource-variable/montserrat/wght.css";
+@import "@fontsource-variable/inter/wght.css";
 
 /*
   Direção
   Cor: o marinho da marca como base escura, verde-água como única cor de ação, amarelo só como destaque pontual
   (o sublinhado e a coroa das campanhas), neutros frios como superfície de apoio.
-  Tipo: Montserrat, geométrica e pesada como os títulos das campanhas; títulos em peso 800.
-  Estrutura: a folha do gabarito (o símbolo) e as ondas da camiseta. Grid de 12 colunas, filetes finos.
+  Tipo: Montserrat nos títulos, em peso 650, e Inter no texto corrido. Pouca cor, muito espaço, filetes finos.
+  Estrutura: fundo claro, grid de 12 colunas, filetes finos. A marca aparece no gabarito da hero (bolhas com o X).
 */
 :root {
   --marinho: #0a1d3b;
@@ -25,7 +26,8 @@
   --filete: #d5dde8;
   --branco: #ffffff;
 
-  --fonte: "Montserrat Variable", "Montserrat", system-ui, sans-serif;
+  --fonte: "Inter Variable", "Inter", system-ui, sans-serif;
+  --fonte-titulo: "Montserrat Variable", "Montserrat", system-ui, sans-serif;
 
   --t-12: 0.75rem;
   --t-14: 0.875rem;
@@ -78,6 +80,12 @@ img {
 
 h1,
 h2,
+h3 {
+  font-family: var(--fonte-titulo);
+}
+
+h1,
+h2,
 h3,
 h4,
 p,
@@ -120,9 +128,10 @@ button {
 }
 
 .titulo {
-  font-weight: 800;
-  letter-spacing: -0.015em;
-  line-height: 1.04;
+  font-weight: 650;
+  font-family: var(--fonte-titulo);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
 }
 
 .h2 {

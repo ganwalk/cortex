@@ -1,112 +1,218 @@
 ---
-import { CAMPANHA } from "../data/site";
+import { CAMPANHA, turmas } from "../data/site";
 
 /*
-  A foto da campanha da Prova de Bolsas entra no lugar da folha marinho do símbolo: a geometria do logotipo
-  (folha girada 49°, quadrado verde-água atrás, moldura em U e o X branco) em tamanho de hero. O X fica no canto,
-  sobre o verde-água, para não cobrir rostos. Os cantos da folha que a foto não alcança mostram a própria foto
-  desfocada (gerada junto, em public/img/alunos-1600.webp). A foto não gira; só o recorte segue o ângulo da marca.
+  Hero com um gabarito para marcar. O símbolo do Córtex é uma folha de gabarito com o X marcado; aqui a pessoa
+  responde três perguntas, cada bolha recebe o X e, no fim, aparece o caminho dela no colégio, com o botão que
+  já preenche o formulário de visita. Sem foto: a interação mostra o que o colégio oferece.
 */
-const FOLHA = "M-16 30H345V410H-16Z";
+const perguntas = [
+  {
+    id: "serie",
+    texto: "Em que série você vai estudar em 2027?",
+    opcoes: turmas.map((t) => ({ id: t.id, rotulo: t.nome })),
+  },
+  {
+    id: "prova",
+    texto: "Qual prova está no seu horizonte?",
+    opcoes: [
+      { id: "enem", rotulo: "Enem" },
+      { id: "ueg", rotulo: "Vestibular UEG" },
+      { id: "outro", rotulo: "Outro vestibular" },
+      { id: "nao-sei", rotulo: "Ainda não sei" },
+    ],
+  },
+  {
+    id: "comeco",
+    texto: "Por onde você quer começar?",
+    opcoes: [
+      { id: "visita", rotulo: "Conhecer o colégio" },
+      { id: "prova", rotulo: "Prova de Bolsas" },
+      { id: "informacoes", rotulo: "Tirar dúvidas" },
+    ],
+  },
+];
+const LETRAS = ["A", "B", "C", "D"];
 ---
 
 <section class="hero" aria-labelledby="hero-titulo" data-hero>
-  <div class="hero__texto">
-    <p class="hero__rotulo">Ensino Médio e Pré-Vestibular · Setor Bueno, Goiânia</p>
-    <h1 id="hero-titulo" class="titulo hero__titulo">
-      {CAMPANHA.linha1}
-      <span class="hero__linha2">{CAMPANHA.linha2}</span>
-    </h1>
-    <p class="hero__lead">
-      1ª, 2ª e 3ª séries do Ensino Médio e o Extensivo, na Rua T-53. Agende uma visita para conhecer o colégio, ou
-      faça a Prova de Bolsas e concorra a até 100% de desconto.
-    </p>
-    <div class="hero__acoes">
-      <a class="botao" href="#visita">Agendar visita</a>
-      <a class="hero__link" href="#turmas">Ver as turmas</a>
-      <a class="hero__link" href="#bolsas">Prova de Bolsas</a>
+  <div class="wrap hero__grid">
+    <div class="hero__texto">
+      <p class="hero__rotulo">Ensino Médio e Pré-Vestibular · Setor Bueno, Goiânia</p>
+      <h1 id="hero-titulo" class="titulo hero__titulo">
+        {CAMPANHA.linha1}
+        <span class="hero__linha2">{CAMPANHA.linha2}</span>
+      </h1>
+      <p class="hero__lead">
+        1ª, 2ª e 3ª séries do Ensino Médio e o Extensivo, na Rua T-53. Marque o gabarito ao lado e veja o seu caminho no
+        Córtex.
+      </p>
+      <div class="hero__acoes">
+        <a class="botao" href="#visita">Agendar visita</a>
+        <a class="hero__link" href="#turmas">Ver as turmas</a>
+      </div>
     </div>
+
+    <form class="gabarito" data-gabarito aria-labelledby="gabarito-titulo" novalidate>
+      <header class="gabarito__topo">
+        <p id="gabarito-titulo" class="gabarito__titulo">Gabarito · Colégio Córtex</p>
+        <p class="gabarito__progresso" aria-live="polite" data-progresso>0 de 3</p>
+      </header>
+
+      {
+        perguntas.map((q, n) => (
+          <fieldset class="questao" data-questao={q.id}>
+            <legend class="questao__enunciado">
+              <span class="questao__n" aria-hidden="true">{String(n + 1).padStart(2, "0")}</span>
+              {q.texto}
+            </legend>
+            <div class="questao__opcoes">
+              {q.opcoes.map((o, i) => (
+                <label class="opcao">
+                  <input type="radio" name={q.id} value={o.id} />
+                  <span class="opcao__bolha" aria-hidden="true">
+                    {LETRAS[i]}
+                  </span>
+                  <span class="opcao__rotulo">{o.rotulo}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+        ))
+      }
+
+      <div class="gabarito__resultado" data-resultado aria-live="polite">
+        <p class="gabarito__vazio" data-vazio>Marque as três respostas para ver o seu caminho no Córtex.</p>
+        <div class="caminho" data-caminho hidden>
+          <p class="caminho__titulo">Seu caminho no Córtex</p>
+          <ul class="caminho__lista" role="list" data-linhas></ul>
+          <a class="botao caminho__acao" href="#visita" data-acao>Agendar visita</a>
+        </div>
+      </div>
+    </form>
   </div>
 
-  <div class="hero__marca" data-marca>
-    <svg viewBox="150 -80 745 745" role="img" aria-labelledby="hero-foto">
-      <title id="hero-foto">Três alunos do Córtex com a camiseta do colégio, sorrindo, dentro da folha de gabarito do símbolo da marca</title>
-      <defs>
-        <clipPath id="recorte-folha">
-          <path transform="translate(535 10) rotate(49)" d={FOLHA} />
-        </clipPath>
-      </defs>
-      <g transform="translate(535 10) rotate(49)" class="hero__fundo">
-        <rect x="70" y="-110" width="345" height="300" fill="var(--agua)" />
-        <path d="M-55 70V463H388V250" fill="none" stroke="var(--branco)" stroke-width="15" />
-      </g>
-      <g clip-path="url(#recorte-folha)">
-        <rect x="150" y="-80" width="745" height="745" fill="var(--marinho-800)" />
-        <image href="/img/alunos-1600.webp" x="236" y="36" width="525" height="520" preserveAspectRatio="xMidYMid slice" />
-      </g>
-      <g transform="translate(470 -66) scale(0.62)">
-        <path class="hero__x" d="M575 118 628 112 462 404 380 415ZM352 160 400 146 668 358 622 376Z" fill="var(--branco)" />
-      </g>
-    </svg>
-  </div>
-
-  <svg class="hero__ondas" viewBox="0 0 1200 120" preserveAspectRatio="none" aria-hidden="true" focusable="false">
-    <path d="M0 40 Q150 0 300 40 T600 40 T900 40 T1200 40" />
-    <path d="M0 72 Q150 32 300 72 T600 72 T900 72 T1200 72" />
-    <path d="M0 104 Q150 64 300 104 T600 104 T900 104 T1200 104" />
-  </svg>
+  <script type="application/json" data-turmas set:html={JSON.stringify(turmas)} />
 </section>
+
+<script>
+  interface Turma {
+    id: string;
+    nome: string;
+    para: string;
+    provaDeBolsas: boolean;
+  }
+  const hero = document.querySelector<HTMLElement>("[data-hero]")!;
+  const turmas: Turma[] = JSON.parse(hero.querySelector("[data-turmas]")!.textContent!);
+  const form = hero.querySelector<HTMLFormElement>("[data-gabarito]")!;
+  const progresso = form.querySelector<HTMLElement>("[data-progresso]")!;
+  const vazio = form.querySelector<HTMLElement>("[data-vazio]")!;
+  const caminho = form.querySelector<HTMLElement>("[data-caminho]")!;
+  const linhas = form.querySelector<HTMLUListElement>("[data-linhas]")!;
+  const acao = form.querySelector<HTMLAnchorElement>("[data-acao]")!;
+  const provaBolsas = form.querySelector<HTMLInputElement>("input[name=comeco][value=prova]")!;
+
+  const PROVA: Record<string, string> = {
+    enem: "Nos simulados, você vê os acertos em cada área do Enem e a diferença para o simulado anterior.",
+    ueg: "A redação é corrigida pelo professor, com nota e comentário, e o plantão de dúvidas tem fila pelo celular.",
+    outro: "A redação é corrigida pelo professor, com nota e comentário, e o plantão de dúvidas tem fila pelo celular.",
+    "nao-sei": "O Vestibulando Cast, o podcast do Córtex, conversa sobre vestibular no YouTube e no Spotify.",
+  };
+  const BOTAO: Record<string, (t: Turma) => string> = {
+    visita: (t) => `Agendar visita para a ${t.nome}`,
+    prova: (t) => `Inscrever na Prova de Bolsas da ${t.nome}`,
+    informacoes: (t) => `Tirar dúvidas sobre a ${t.nome}`,
+  };
+
+  const valor = (nome: string) => form.querySelector<HTMLInputElement>(`input[name=${nome}]:checked`)?.value;
+
+  function atualizar() {
+    const serie = valor("serie");
+    const turma = turmas.find((t) => t.id === serie);
+    // a Prova de Bolsas não vale para o Extensivo
+    provaBolsas.disabled = !!turma && !turma.provaDeBolsas;
+    if (provaBolsas.disabled && provaBolsas.checked) provaBolsas.checked = false;
+    const respostas = [serie, valor("prova"), valor("comeco")];
+    const feitas = respostas.filter(Boolean).length;
+    progresso.textContent = `${feitas} de 3`;
+    form.querySelectorAll<HTMLElement>("[data-questao]").forEach((q) => q.classList.toggle("feita", !!valor(q.dataset.questao!)));
+    if (feitas < 3 || !turma) {
+      vazio.hidden = false;
+      vazio.textContent = turma && !turma.provaDeBolsas && !valor("comeco") ? "No Extensivo, a matrícula é com visita ou conversa com a secretaria." : "Marque as três respostas para ver o seu caminho no Córtex.";
+      caminho.hidden = true;
+      return;
+    }
+    const itens = [
+      `${turma.nome}: ${turma.para.charAt(0).toLowerCase()}${turma.para.slice(1)}`,
+      turma.provaDeBolsas ? "Vale a Prova de Bolsas, com até 100% de desconto e inscrição grátis." : "A matrícula pode ser feita pelo próprio aluno maior de idade.",
+      PROVA[respostas[1]!],
+    ];
+    linhas.replaceChildren(
+      ...itens.map((t) => {
+        const li = document.createElement("li");
+        li.textContent = t;
+        return li;
+      }),
+    );
+    acao.textContent = BOTAO[respostas[2]!](turma);
+    vazio.hidden = true;
+    caminho.hidden = false;
+  }
+
+  form.addEventListener("change", atualizar);
+  form.addEventListener("submit", (e) => e.preventDefault());
+  // o botão leva a série e o caminho escolhidos para o formulário de visita
+  acao.addEventListener("click", () => {
+    document.dispatchEvent(new CustomEvent("escolher-serie", { detail: { serie: valor("serie"), interesse: valor("comeco") } }));
+  });
+  atualizar();
+</script>
 
 <style>
   .hero {
-    --altura: clamp(560px, min(calc(100svh - var(--header-h)), 54vw), 820px);
-    --m: clamp(10px, 1.1vw, 16px);
     position: relative;
-    /* moldura branca arredondada; o topo acompanha a rolagem e fecha sob o menu (--corte, em Header.astro) */
-    clip-path: inset(var(--corte, 0px) var(--m) var(--m) round calc(2.25 * var(--m)));
+    padding-block: clamp(2.5rem, 1rem + 5vw, 6rem) clamp(3.5rem, 2rem + 5vw, 7rem);
+    background:
+      radial-gradient(circle at 1px 1px, rgb(10 29 59 / 0.07) 1px, transparent 0) 0 0 / 22px 22px,
+      var(--papel);
+  }
+
+  .hero__grid {
     display: grid;
-    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
-    align-items: center;
-    min-height: var(--altura);
-    background: var(--marinho);
-    color: var(--branco);
-    overflow: hidden;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 30rem);
+    align-items: start;
+    gap: clamp(2.5rem, 2rem + 4vw, 6rem);
   }
 
   .hero__texto {
-    position: relative;
-    z-index: 1;
-    --pad: clamp(1.5rem, 1rem + 3vw, 4.5rem);
-    padding: clamp(2.5rem, 1rem + 4vw, 4.5rem) var(--pad) clamp(5rem, 3rem + 4vw, 7rem) max(var(--pad), calc(var(--m) + 2rem));
-    max-width: 44rem;
+    padding-top: clamp(0rem, -2rem + 6vw, 4.5rem);
   }
 
   .hero__rotulo {
     font-size: var(--t-14);
-    font-weight: 650;
-    letter-spacing: 0.02em;
-    color: var(--agua-claro);
+    font-weight: 600;
+    color: var(--agua-700);
   }
 
   .hero__titulo {
     margin-top: 1rem;
-    font-size: clamp(2.25rem, 3.7vw, 3.875rem);
-    line-height: 1.02;
-    letter-spacing: -0.025em;
+    font-size: clamp(2.125rem, 1.5rem + 2.2vw, 3.375rem);
+    line-height: 1.06;
+    color: var(--marinho);
   }
 
   .hero__linha2 {
     display: block;
-    margin-top: 0.15em;
-    color: var(--agua-claro);
+    color: var(--tinta-2);
+    font-weight: 500;
   }
 
   .hero__lead {
     margin-top: 1.5rem;
     max-width: 32em;
     font-size: var(--t-18);
-    line-height: 1.5;
-    color: #c9d3e4;
+    line-height: 1.6;
+    color: var(--tinta-2);
   }
 
   .hero__acoes {
@@ -118,116 +224,264 @@ const FOLHA = "M-16 30H345V410H-16Z";
   }
 
   .hero .botao {
-    background: var(--agua);
-    color: var(--marinho-900);
     border-radius: 999px;
     padding-inline: 1.5rem;
   }
 
-  .hero .botao:hover {
-    background: var(--agua-claro);
-  }
-
   .hero__link {
-    min-height: 44px;
     display: inline-flex;
     align-items: center;
-    color: var(--branco);
-    font-weight: 650;
-    text-underline-offset: 0.25em;
-  }
-
-  /* o sublinhado amarelo das peças da campanha, só no link de apoio */
-  .hero__link {
+    min-height: 44px;
+    font-weight: 600;
+    color: var(--marinho);
     text-decoration-color: var(--amarelo);
-    text-decoration-thickness: 3px;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.3em;
   }
 
-  .hero__marca {
+  /* ---------- gabarito ---------- */
+
+  .gabarito {
+    padding: clamp(1.25rem, 1rem + 1vw, 1.75rem);
+    border: 1px solid var(--filete);
+    border-radius: 20px;
+    background: var(--branco);
+    box-shadow: 0 40px 80px -40px rgb(10 29 59 / 0.28);
+  }
+
+  .gabarito__topo {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--filete);
+  }
+
+  .gabarito__titulo {
+    font-size: var(--t-12);
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--tinta-2);
+  }
+
+  .gabarito__progresso {
+    font-size: var(--t-12);
+    font-variant-numeric: tabular-nums;
+    color: var(--tinta-2);
+  }
+
+  .questao {
+    margin: 0;
+    padding: 1.1rem 0 1.15rem;
+    border: 0;
+    border-bottom: 1px solid var(--filete);
+  }
+
+  .questao__enunciado {
+    float: left;
+    width: 100%;
+    display: flex;
+    gap: 0.75rem;
+    font-size: var(--t-16);
+    font-weight: 600;
+    color: var(--marinho);
+  }
+
+  .questao__n {
+    flex: none;
+    width: 1.75rem;
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+    color: var(--agua-700);
+  }
+
+  .questao__opcoes {
+    clear: both;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.25rem 0.75rem;
+    padding: 0.6rem 0 0 2.5rem;
+  }
+
+  .opcao {
     position: relative;
-    z-index: 1;
-    align-self: stretch;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-height: 44px;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+
+  .opcao input {
+    position: absolute;
+    opacity: 0;
+    inset: 0;
+    cursor: pointer;
+  }
+
+  .opcao__bolha {
+    position: relative;
+    flex: none;
     display: grid;
     place-items: center;
-    padding: clamp(1.5rem, 3vw, 3rem) clamp(1.5rem, 4vw, 4rem) clamp(4rem, 6vw, 6rem) 0;
+    width: 30px;
+    height: 30px;
+    border: 1.5px solid var(--gelo);
+    border-radius: 50%;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--tinta-2);
+    transition:
+      border-color 160ms var(--ease),
+      background-color 200ms var(--ease),
+      color 160ms var(--ease);
   }
 
-  .hero__marca svg {
-    width: 100%;
-    max-width: 640px;
-    height: auto;
-    overflow: visible;
+  /* o X da marca, desenhado em duas hastes que crescem ao marcar */
+  .opcao__bolha::before,
+  .opcao__bolha::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 2.5px;
+    height: 16px;
+    margin: -8px 0 0 -1.25px;
+    border-radius: 2px;
+    background: var(--branco);
+    transform: rotate(40deg) scaleY(0);
+    transition: transform 220ms var(--ease);
   }
 
-  /* entrada: o quadrado verde-água e o X chegam por último, como quem marca a resposta */
-  @media (prefers-reduced-motion: no-preference) {
-    .hero__fundo {
-      animation: chega 700ms var(--ease) both;
-    }
-    .hero__x {
-      animation: marca 520ms 380ms var(--ease) both;
-      transform-box: fill-box;
-      transform-origin: center;
-    }
+  .opcao__bolha::after {
+    transform: rotate(-40deg) scaleY(0);
+    transition-delay: 60ms;
   }
 
-  @keyframes chega {
-    from {
-      opacity: 0;
-    }
+  .opcao__rotulo {
+    font-size: var(--t-14);
+    color: var(--tinta);
   }
 
-  @keyframes marca {
-    from {
-      opacity: 0;
-      transform: scale(0.6);
-    }
+  .opcao:hover .opcao__bolha {
+    border-color: var(--marinho);
+    color: var(--marinho);
   }
 
-  /* as ondas da camiseta do colégio, na base da hero */
-  .hero__ondas {
+  .opcao input:checked + .opcao__bolha {
+    border-color: var(--marinho);
+    background: var(--marinho);
+    color: transparent;
+  }
+
+  .opcao input:checked + .opcao__bolha::before {
+    transform: rotate(40deg) scaleY(1);
+  }
+
+  .opcao input:checked + .opcao__bolha::after {
+    transform: rotate(-40deg) scaleY(1);
+  }
+
+  .opcao input:checked ~ .opcao__rotulo {
+    font-weight: 600;
+    color: var(--marinho);
+  }
+
+  .opcao input:focus-visible + .opcao__bolha {
+    outline: 2px solid var(--agua-700);
+    outline-offset: 3px;
+  }
+
+  .opcao input:disabled + .opcao__bolha,
+  .opcao input:disabled ~ .opcao__rotulo {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+
+  .opcao:has(input:disabled) {
+    cursor: not-allowed;
+  }
+
+  .questao.feita .questao__n {
+    color: var(--marinho);
+  }
+
+  .gabarito__resultado {
+    padding-top: 1.1rem;
+    min-height: 3rem;
+  }
+
+  .gabarito__vazio {
+    font-size: var(--t-14);
+    color: var(--tinta-2);
+  }
+
+  .caminho__titulo {
+    font-size: var(--t-12);
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--agua-700);
+  }
+
+  .caminho__lista {
+    margin: 0.75rem 0 1.25rem;
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .caminho__lista :global(li) {
+    position: relative;
+    padding-left: 1.25rem;
+    font-size: var(--t-14);
+    line-height: 1.5;
+    color: var(--tinta);
+  }
+
+  .caminho__lista :global(li)::before {
+    content: "";
     position: absolute;
     left: 0;
-    right: 0;
-    bottom: clamp(0.5rem, 2vw, 1.5rem);
+    top: 0.55em;
+    width: 7px;
+    height: 7px;
+    border-radius: 2px;
+    background: var(--agua);
+    transform: rotate(45deg);
+  }
+
+  .caminho__acao {
     width: 100%;
-    height: clamp(48px, 7vw, 96px);
-    fill: none;
-    stroke: var(--agua);
-    stroke-width: 9;
-    opacity: 0.55;
-    pointer-events: none;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .caminho:not([hidden]) {
+      animation: surge 360ms var(--ease) both;
+    }
+  }
+
+  @keyframes surge {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
   }
 
   @media (max-width: 1000px) {
-    .hero {
+    .hero__grid {
       grid-template-columns: minmax(0, 1fr);
     }
-    .hero__texto {
-      padding-bottom: 1rem;
-      max-width: none;
-    }
-    .hero__marca {
-      padding: 0 var(--gutter) clamp(4rem, 12vw, 6rem);
-    }
-    .hero__marca svg {
-      max-width: 520px;
+    .gabarito {
+      max-width: 34rem;
     }
   }
 
-  @media (max-width: 760px) {
-    .hero {
-      clip-path: none;
-      min-height: 0;
-    }
-    .hero__texto {
-      padding: 2rem var(--gutter) 0.5rem;
-    }
-    .hero__titulo {
-      font-size: clamp(2.125rem, 10vw, 3rem);
-    }
-    .hero__lead {
-      font-size: var(--t-16);
+  @media (max-width: 480px) {
+    .questao__opcoes {
+      grid-template-columns: 1fr;
+      padding-left: 0;
     }
     .hero__acoes .botao {
       width: 100%;

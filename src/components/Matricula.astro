@@ -105,11 +105,6 @@ const interesses = [
     </div>
   </div>
 
-  <svg class="matricula__ondas" viewBox="0 0 1200 120" preserveAspectRatio="none" aria-hidden="true" focusable="false">
-    <path d="M0 40 Q150 0 300 40 T600 40 T900 40 T1200 40" />
-    <path d="M0 72 Q150 32 300 72 T600 72 T900 72 T1200 72" />
-    <path d="M0 104 Q150 64 300 104 T600 104 T900 104 T1200 104" />
-  </svg>
 </section>
 
 <script>
@@ -216,14 +211,14 @@ const interesses = [
 <style>
   .matricula {
     position: relative;
-    padding-block: clamp(4rem, 2rem + 7vw, 8rem) clamp(6rem, 4rem + 7vw, 10rem);
-    background: var(--marinho);
-    color: var(--branco);
-    overflow: hidden;
+    padding-block: clamp(4rem, 2rem + 6vw, 7rem);
+    background: var(--nevoa);
+    color: var(--tinta);
+    border-top: 1px solid var(--filete);
   }
 
   .matricula :global(.titulo) {
-    color: var(--branco);
+    color: var(--marinho);
   }
 
   .matricula__grid {
@@ -243,20 +238,22 @@ const interesses = [
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--agua-claro);
+    color: var(--agua-700);
     margin-bottom: 0.75rem;
   }
 
   .prova {
     margin-top: 2.25rem;
     padding: 1.5rem;
-    border: 1px solid rgb(255 255 255 / 0.18);
-    border-radius: calc(2 * var(--r-2));
+    border: 1px solid var(--filete);
+    border-radius: 20px;
+    background: var(--branco);
   }
 
   .prova__titulo {
     font-size: var(--t-24);
-    font-weight: 800;
+    font-weight: 650;
+  font-family: var(--fonte-titulo);
     line-height: 1.2;
     /* o sublinhado amarelo que as peças da campanha usam no percentual */
     text-decoration: underline;
@@ -268,28 +265,28 @@ const interesses = [
 
   .prova__texto {
     margin-top: 0.75rem;
-    color: #c9d3e4;
+    color: var(--tinta-2);
   }
 
   .prova__acao {
     margin-top: 1rem;
     min-height: 44px;
     padding: 0.5rem 1.25rem;
-    border: 1px solid var(--agua-claro);
+    border: 1px solid var(--marinho);
     border-radius: 999px;
     background: transparent;
-    color: var(--branco);
+    color: var(--marinho);
     font-weight: 650;
     cursor: pointer;
   }
 
   .prova__acao:hover {
-    background: rgb(255 255 255 / 0.08);
+    background: var(--nevoa);
   }
 
   .matricula .lead {
     margin-top: 1.25rem;
-    color: #c9d3e4;
+    color: var(--tinta-2);
   }
 
   .matricula__form {
@@ -298,7 +295,8 @@ const interesses = [
     border-radius: calc(2 * var(--r-2));
     background: var(--branco);
     color: var(--tinta);
-    box-shadow: 0 24px 48px rgb(0 0 0 / 0.25);
+    border: 1px solid var(--filete);
+    box-shadow: 0 40px 80px -48px rgb(10 29 59 / 0.3);
   }
 
   .pedido {
@@ -445,7 +443,8 @@ const interesses = [
 
   .pedido-ok__titulo {
     font-size: var(--t-24);
-    font-weight: 800;
+    font-weight: 650;
+  font-family: var(--fonte-titulo);
     color: var(--marinho);
   }
 
@@ -463,19 +462,6 @@ const interesses = [
     font-weight: 700;
   }
 
-  .matricula__ondas {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: clamp(1rem, 3vw, 2.5rem);
-    width: 100%;
-    height: clamp(48px, 7vw, 96px);
-    fill: none;
-    stroke: var(--agua);
-    stroke-width: 9;
-    opacity: 0.55;
-    pointer-events: none;
-  }
 
   @media (max-width: 959px) {
     .matricula__info,

@@ -31,16 +31,16 @@ Regras de texto e de contribuição: [`CLAUDE.md`](CLAUDE.md).
 ## Direção de design
 
 - **Cor:** marinho da marca (`#0A1D3B`) como base escura; verde-água (`#00959A`, e `#007479` para texto e botões, por contraste) como única cor de ação; amarelo (`#FBD953`) só como destaque pontual, no sublinhado, como nas peças da campanha. Neutros frios puxados para o marinho. As cores foram tiradas do logotipo e da peça da Prova de Bolsas.
-- **Tipo:** Montserrat, geométrica e pesada como os títulos das campanhas. Títulos em peso 800. A fonte oficial da marca não foi confirmada.
-- **Estrutura:** a folha do gabarito do símbolo (girada 49°, com o quadrado verde-água atrás, a moldura em U e o X) e as ondas da camiseta do colégio. Grid de 12 colunas e filetes finos.
+- **Tipo:** Montserrat nos títulos, em peso 650, e Inter no texto corrido. A fonte oficial da marca não foi confirmada.
+- **Estrutura:** fundo claro, filetes finos, muito espaço e cor só na ação. A marca aparece no gabarito: bolhas que recebem o X do símbolo.
 
 ### Hero
 
-O site abre com a hero dentro de uma moldura branca arredondada, e o menu é a faixa de cima dessa moldura. Ao rolar, a moldura se fecha e o menu vira uma barra flutuante. O título é a frase da campanha (“Você já sabe onde quer chegar. Agora escolha onde vai começar.”). Três alunos de um post do Instagram do colégio entram no lugar da folha marinho do símbolo; o X fica no canto, sobre o verde-água. Os cantos da folha que a foto não alcança mostram a mesma foto desfocada. A foto vem de um print de celular (470 px de largura no recorte); com o arquivo original, a hero fica mais nítida.
+O título é a frase da campanha (“Você já sabe onde quer chegar. Agora escolha onde vai começar.”). Ao lado, um gabarito para marcar, com três perguntas: a série em 2027, a prova que a pessoa quer prestar e por onde quer começar (visita, Prova de Bolsas ou dúvidas). Cada bolha marcada recebe o X da marca. Com as três respostas, aparece o caminho da pessoa no Córtex e um botão que leva a série e a escolha até o formulário de visita. Quando a série é o Extensivo, a opção da Prova de Bolsas fica desligada. `prefers-reduced-motion` desliga as animações.
 
 ### Seções
 
-- **Turmas:** a escolha da série imita uma linha de gabarito (bolhas que recebem o X) e acende o cartão da turma: 1ª, 2ª e 3ª série e Extensivo.
+- **Turmas:** quatro colunas (1ª, 2ª e 3ª série e Extensivo), cada uma com o link para agendar a visita já com a série marcada.
 - **Agende uma visita:** formulário com visita (padrão), Prova de Bolsas ou dúvidas. A Prova de Bolsas aparece num bloco próprio, com os dados da peça da campanha. Quando a série é o Extensivo, a opção da prova fica desligada, com o motivo escrito.
 - **Simulado, redação e plantão:** abas com o que aparece nas peças do colégio (UFG Express, redação, plantão, Vestibulando Cast, eventos) e como cada coisa funciona na plataforma.
 - **Onde fica:** endereço, telefones, WhatsApp e redes.
@@ -53,7 +53,7 @@ O site abre com a hero dentro de uma moldura branca arredondada, e o menu é a f
 
 ## Fotos
 
-`public/img/CREDITOS.md` lista a origem de cada foto. A da hero é um recorte de um post do Instagram do colégio. As outras são do Pexels e mostram pessoas que não são do Córtex: servem para a demonstração e devem ser trocadas por fotos do colégio.
+`public/img/CREDITOS.md` lista a origem de cada foto. As da seção de rotina são do Pexels e mostram pessoas que não são do Córtex: servem para a demonstração e devem ser trocadas por fotos do colégio.
 
 ## Dados
 

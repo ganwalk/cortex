@@ -72,8 +72,8 @@ import { rotina } from "../data/site";
 
 <style>
   .rotina {
-    padding-block: clamp(3.5rem, 2rem + 6vw, 7rem);
-    background: var(--nevoa);
+    padding-block: clamp(4rem, 2rem + 6vw, 7rem);
+    border-top: 1px solid var(--filete);
   }
 
   .rotina__cabeca .lead {
@@ -136,9 +136,7 @@ import { rotina } from "../data/site";
     grid-column: 1 / span 7;
     aspect-ratio: 3 / 2;
     overflow: hidden;
-    /* o canto cortado em diagonal lembra a folha girada do símbolo */
-    clip-path: polygon(0 0, 88% 0, 100% 16%, 100% 100%, 0 100%);
-    border-radius: var(--r-2);
+    border-radius: 20px;
     background: var(--gelo);
   }
 
@@ -154,7 +152,8 @@ import { rotina } from "../data/site";
 
   .painel__texto h3 {
     font-size: var(--t-32);
-    font-weight: 800;
+    font-weight: 650;
+  font-family: var(--fonte-titulo);
     line-height: 1.1;
     color: var(--marinho);
   }
