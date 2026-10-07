@@ -1,0 +1,65 @@
+---
+// Selo fixo do protótipo: lembra que o site é a etapa 1 do fluxo da Plataforma Córtex.
+---
+
+<aside class="etapa-plataforma" aria-label="Plataforma Córtex">
+  <a href="/" class="etapa-plataforma__voltar">
+    <img src="/brand/simbolo-branco.svg" alt="" width="20" height="20" />
+    <span><strong>Plataforma Córtex</strong> · etapa 1 de 7: o site</span>
+  </a>
+  <a href="#visita" class="etapa-plataforma__proximo">Pedir visita e ver no CRM</a>
+</aside>
+
+<style>
+  .etapa-plataforma {
+    position: fixed;
+    left: 1rem;
+    bottom: 1rem;
+    z-index: 60;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.3rem;
+    border-radius: 999px;
+    background: var(--marinho-900);
+    color: var(--branco);
+    font-size: var(--t-14);
+    box-shadow: 0 12px 30px rgb(0 0 0 / 0.25);
+  }
+  .etapa-plataforma a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 40px;
+    padding: 0.3rem 0.9rem;
+    border-radius: 999px;
+    color: inherit;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .etapa-plataforma a:hover {
+    background: rgb(255 255 255 / 0.1);
+  }
+  .etapa-plataforma__proximo {
+    background: var(--branco);
+    color: var(--marinho-900) !important;
+    font-weight: 650;
+  }
+  .etapa-plataforma__proximo:hover {
+    background: var(--gelo) !important;
+  }
+  @media (max-width: 640px) {
+    .etapa-plataforma {
+      left: 0.5rem;
+      right: 0.5rem;
+      bottom: 0.5rem;
+      justify-content: space-between;
+    }
+    .etapa-plataforma__voltar span {
+      display: none;
+    }
+    .etapa-plataforma__proximo {
+      font-size: var(--t-14);
+    }
+  }
+</style>

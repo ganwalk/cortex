@@ -1,0 +1,189 @@
+---
+import { rotina } from "../data/site";
+---
+
+<section class="rotina" id="rotina" aria-labelledby="rotina-titulo">
+  <div class="wrap">
+    <div class="rotina__cabeca">
+      <h2 id="rotina-titulo" class="titulo h2">Simulado, redação e plantão</h2>
+      <p class="lead">O simulado, a redação e o plantão também ficam na Plataforma Córtex, no celular do aluno.</p>
+    </div>
+
+    <div class="abas" role="tablist" aria-label="Rotina do Córtex" data-abas>
+      {
+        rotina.map((r, i) => (
+          <button type="button" role="tab" class="aba" id={`aba-${r.id}`} aria-controls={`painel-${r.id}`} aria-selected={i === 0 ? "true" : "false"} tabindex={i === 0 ? 0 : -1}>
+            {r.nome}
+          </button>
+        ))
+      }
+    </div>
+
+    {
+      rotina.map((r, i) => (
+        <div class="painel" role="tabpanel" id={`painel-${r.id}`} aria-labelledby={`aba-${r.id}`} hidden={i !== 0}>
+          <div class="painel__foto">
+            <img src={`${r.foto}-800.webp`} srcset={`${r.foto}-800.webp 800w, ${r.foto}-1600.webp 1600w`} sizes="(min-width: 960px) 50vw, 100vw" alt={r.alt} loading="lazy" decoding="async" />
+          </div>
+          <div class="painel__texto">
+            <h3>{r.titulo}</h3>
+            <p>{r.texto}</p>
+            {"links" in r && (
+              <ul role="list" class="painel__links">
+                {r.links.map((l) => (
+                  <li>
+                    <a class="link" href={l.href} target="_blank" rel="noopener">
+                      {l.rotulo}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+      ))
+    }
+  </div>
+</section>
+
+<script>
+  // Abas com setas, Home e End, como no padrão de abas do WAI-ARIA.
+  const lista = document.querySelector<HTMLElement>("[data-abas]")!;
+  const abas = [...lista.querySelectorAll<HTMLButtonElement>("[role=tab]")];
+  const ativar = (i: number, focar = true) => {
+    abas.forEach((a, k) => {
+      const sel = k === i;
+      a.setAttribute("aria-selected", String(sel));
+      a.tabIndex = sel ? 0 : -1;
+      document.getElementById(a.getAttribute("aria-controls")!)!.hidden = !sel;
+    });
+    if (focar) abas[i].focus();
+  };
+  abas.forEach((a, i) => a.addEventListener("click", () => ativar(i, false)));
+  lista.addEventListener("keydown", (e) => {
+    const i = abas.indexOf(document.activeElement as HTMLButtonElement);
+    if (i < 0) return;
+    const alvo = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: abas.length - 1 }[e.key];
+    if (alvo === undefined) return;
+    e.preventDefault();
+    ativar((alvo + abas.length) % abas.length);
+  });
+</script>
+
+<style>
+  .rotina {
+    padding-block: clamp(3.5rem, 2rem + 6vw, 7rem);
+    background: var(--nevoa);
+  }
+
+  .rotina__cabeca .lead {
+    margin-top: 1rem;
+  }
+
+  .abas {
+    margin-top: 2rem;
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 0.25rem;
+  }
+
+  .abas::-webkit-scrollbar {
+    display: none;
+  }
+
+  .aba {
+    flex: none;
+    min-height: 44px;
+    padding: 0.5rem 1.125rem;
+    border: 1px solid var(--filete);
+    border-radius: 999px;
+    background: var(--branco);
+    color: var(--tinta);
+    font-weight: 650;
+    font-size: var(--t-14);
+    cursor: pointer;
+    transition:
+      background-color 160ms var(--ease),
+      border-color 160ms var(--ease),
+      color 160ms var(--ease);
+  }
+
+  .aba:hover {
+    border-color: var(--marinho);
+  }
+
+  .aba[aria-selected="true"] {
+    background: var(--marinho);
+    border-color: var(--marinho);
+    color: var(--branco);
+  }
+
+  .painel {
+    margin-top: 1.5rem;
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 2rem var(--gutter);
+    align-items: center;
+  }
+
+  .painel[hidden] {
+    display: none;
+  }
+
+  .painel__foto {
+    grid-column: 1 / span 7;
+    aspect-ratio: 3 / 2;
+    overflow: hidden;
+    /* o canto cortado em diagonal lembra a folha girada do símbolo */
+    clip-path: polygon(0 0, 88% 0, 100% 16%, 100% 100%, 0 100%);
+    border-radius: var(--r-2);
+    background: var(--gelo);
+  }
+
+  .painel__foto img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .painel__texto {
+    grid-column: 8 / span 5;
+  }
+
+  .painel__texto h3 {
+    font-size: var(--t-32);
+    font-weight: 800;
+    line-height: 1.1;
+    color: var(--marinho);
+  }
+
+  .painel__texto p {
+    margin-top: 1rem;
+    font-size: var(--t-18);
+    color: var(--tinta-2);
+  }
+
+  .painel__links {
+    margin-top: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+  }
+
+  .painel__links .link {
+    color: var(--agua-700);
+  }
+
+  @media (max-width: 959px) {
+    .painel__foto,
+    .painel__texto {
+      grid-column: 1 / -1;
+    }
+    .abas {
+      margin-inline: calc(-1 * var(--gutter));
+      padding-inline: var(--gutter);
+    }
+  }
+</style>

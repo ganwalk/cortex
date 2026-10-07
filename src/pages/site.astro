@@ -1,0 +1,27 @@
+---
+import Base from "../layouts/Base.astro";
+import Header from "../components/Header.astro";
+import Hero from "../components/Hero.astro";
+import Turmas from "../components/Turmas.astro";
+import Matricula from "../components/Matricula.astro";
+import Rotina from "../components/Rotina.astro";
+import Contato from "../components/Contato.astro";
+import Rodape from "../components/Rodape.astro";
+import EtapaPlataforma from "../components/EtapaPlataforma.astro";
+---
+
+<Base
+  title="Colégio Córtex · Goiânia"
+  description="Ensino Médio e Pré-Vestibular/Enem no Setor Bueno, em Goiânia. Agende uma visita ou faça a Prova de Bolsas, com até 100% de desconto para a 1ª, a 2ª e a 3ª série."
+>
+  <Header />
+  <main id="conteudo">
+    <Hero />
+    <Turmas />
+    <Matricula />
+    <Rotina />
+    <Contato />
+  </main>
+  <Rodape />
+  <EtapaPlataforma />
+</Base>

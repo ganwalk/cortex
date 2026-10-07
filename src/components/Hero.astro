@@ -1,0 +1,235 @@
+---
+import { CAMPANHA } from "../data/site";
+
+/*
+  A foto da campanha da Prova de Bolsas entra no lugar da folha marinho do símbolo: a geometria do logotipo
+  (folha girada 49°, quadrado verde-água atrás, moldura em U e o X branco) em tamanho de hero. O X fica no canto,
+  sobre o verde-água, para não cobrir rostos. A foto não gira; só o recorte segue o ângulo da marca.
+*/
+const FOLHA = "M-16 30H345V410H-16Z";
+---
+
+<section class="hero" aria-labelledby="hero-titulo" data-hero>
+  <div class="hero__texto">
+    <p class="hero__rotulo">Ensino Médio e Pré-Vestibular · Setor Bueno, Goiânia</p>
+    <h1 id="hero-titulo" class="titulo hero__titulo">
+      {CAMPANHA.linha1}
+      <span class="hero__linha2">{CAMPANHA.linha2}</span>
+    </h1>
+    <p class="hero__lead">
+      1ª, 2ª e 3ª séries do Ensino Médio e o Extensivo, na Rua T-53. Agende uma visita para conhecer o colégio, ou
+      faça a Prova de Bolsas e concorra a até 100% de desconto.
+    </p>
+    <div class="hero__acoes">
+      <a class="botao" href="#visita">Agendar visita</a>
+      <a class="hero__link" href="#turmas">Ver as turmas</a>
+      <a class="hero__link" href="#bolsas">Prova de Bolsas</a>
+    </div>
+  </div>
+
+  <div class="hero__marca" data-marca>
+    <svg viewBox="150 -80 745 745" role="img" aria-labelledby="hero-foto">
+      <title id="hero-foto">Aluna do Córtex com a camiseta do colégio, dentro da folha de gabarito do símbolo da marca</title>
+      <defs>
+        <clipPath id="recorte-folha">
+          <path transform="translate(535 10) rotate(49)" d={FOLHA} />
+        </clipPath>
+      </defs>
+      <g transform="translate(535 10) rotate(49)" class="hero__fundo">
+        <rect x="70" y="-110" width="345" height="300" fill="var(--agua)" />
+        <path d="M-55 70V463H388V250" fill="none" stroke="var(--branco)" stroke-width="15" />
+      </g>
+      <g clip-path="url(#recorte-folha)">
+        <rect x="150" y="-80" width="745" height="745" fill="var(--marinho-800)" />
+        <image href="/img/aluna-1600.webp" x="198" y="20" width="620" height="827" preserveAspectRatio="xMidYMin slice" />
+      </g>
+      <g transform="translate(470 -66) scale(0.62)">
+        <path class="hero__x" d="M575 118 628 112 462 404 380 415ZM352 160 400 146 668 358 622 376Z" fill="var(--branco)" />
+      </g>
+    </svg>
+  </div>
+
+  <svg class="hero__ondas" viewBox="0 0 1200 120" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+    <path d="M0 40 Q150 0 300 40 T600 40 T900 40 T1200 40" />
+    <path d="M0 72 Q150 32 300 72 T600 72 T900 72 T1200 72" />
+    <path d="M0 104 Q150 64 300 104 T600 104 T900 104 T1200 104" />
+  </svg>
+</section>
+
+<style>
+  .hero {
+    --altura: clamp(560px, min(calc(100svh - var(--header-h)), 54vw), 820px);
+    --m: clamp(10px, 1.1vw, 16px);
+    position: relative;
+    /* moldura branca arredondada; o topo acompanha a rolagem e fecha sob o menu (--corte, em Header.astro) */
+    clip-path: inset(var(--corte, 0px) var(--m) var(--m) round calc(2.25 * var(--m)));
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    align-items: center;
+    min-height: var(--altura);
+    background: var(--marinho);
+    color: var(--branco);
+    overflow: hidden;
+  }
+
+  .hero__texto {
+    position: relative;
+    z-index: 1;
+    --pad: clamp(1.5rem, 1rem + 3vw, 4.5rem);
+    padding: clamp(2.5rem, 1rem + 4vw, 4.5rem) var(--pad) clamp(5rem, 3rem + 4vw, 7rem) max(var(--pad), calc(var(--m) + 2rem));
+    max-width: 44rem;
+  }
+
+  .hero__rotulo {
+    font-size: var(--t-14);
+    font-weight: 650;
+    letter-spacing: 0.02em;
+    color: var(--agua-claro);
+  }
+
+  .hero__titulo {
+    margin-top: 1rem;
+    font-size: clamp(2.25rem, 3.7vw, 3.875rem);
+    line-height: 1.02;
+    letter-spacing: -0.025em;
+  }
+
+  .hero__linha2 {
+    display: block;
+    margin-top: 0.15em;
+    color: var(--agua-claro);
+  }
+
+  .hero__lead {
+    margin-top: 1.5rem;
+    max-width: 32em;
+    font-size: var(--t-18);
+    line-height: 1.5;
+    color: #c9d3e4;
+  }
+
+  .hero__acoes {
+    margin-top: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.75rem;
+  }
+
+  .hero .botao {
+    background: var(--agua);
+    color: var(--marinho-900);
+    border-radius: 999px;
+    padding-inline: 1.5rem;
+  }
+
+  .hero .botao:hover {
+    background: var(--agua-claro);
+  }
+
+  .hero__link {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    color: var(--branco);
+    font-weight: 650;
+    text-underline-offset: 0.25em;
+  }
+
+  /* o sublinhado amarelo das peças da campanha, só no link de apoio */
+  .hero__link {
+    text-decoration-color: var(--amarelo);
+    text-decoration-thickness: 3px;
+  }
+
+  .hero__marca {
+    position: relative;
+    z-index: 1;
+    align-self: stretch;
+    display: grid;
+    place-items: center;
+    padding: clamp(1.5rem, 3vw, 3rem) clamp(1.5rem, 4vw, 4rem) clamp(4rem, 6vw, 6rem) 0;
+  }
+
+  .hero__marca svg {
+    width: 100%;
+    max-width: 640px;
+    height: auto;
+    overflow: visible;
+  }
+
+  /* entrada: o quadrado verde-água e o X chegam por último, como quem marca a resposta */
+  @media (prefers-reduced-motion: no-preference) {
+    .hero__fundo {
+      animation: chega 700ms var(--ease) both;
+    }
+    .hero__x {
+      animation: marca 520ms 380ms var(--ease) both;
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+  }
+
+  @keyframes chega {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes marca {
+    from {
+      opacity: 0;
+      transform: scale(0.6);
+    }
+  }
+
+  /* as ondas da camiseta do colégio, na base da hero */
+  .hero__ondas {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: clamp(0.5rem, 2vw, 1.5rem);
+    width: 100%;
+    height: clamp(48px, 7vw, 96px);
+    fill: none;
+    stroke: var(--agua);
+    stroke-width: 9;
+    opacity: 0.55;
+    pointer-events: none;
+  }
+
+  @media (max-width: 1000px) {
+    .hero {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .hero__texto {
+      padding-bottom: 1rem;
+      max-width: none;
+    }
+    .hero__marca {
+      padding: 0 var(--gutter) clamp(4rem, 12vw, 6rem);
+    }
+    .hero__marca svg {
+      max-width: 520px;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .hero {
+      clip-path: none;
+      min-height: 0;
+    }
+    .hero__texto {
+      padding: 2rem var(--gutter) 0.5rem;
+    }
+    .hero__titulo {
+      font-size: clamp(2.125rem, 10vw, 3rem);
+    }
+    .hero__lead {
+      font-size: var(--t-16);
+    }
+    .hero__acoes .botao {
+      width: 100%;
+    }
+  }
+</style>

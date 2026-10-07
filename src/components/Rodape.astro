@@ -1,0 +1,190 @@
+---
+import { acessos, conteudos, redes, unidade } from "../data/site";
+import Logo from "./Logo.astro";
+---
+
+<footer class="rodape escuro">
+  <div class="wrap rodape__grid">
+    <div class="rodape__marca">
+      <Logo tom="escuro" />
+      <p>Ensino Médio e Pré-Vestibular/Enem na Rua T-53, Setor Bueno, Goiânia.</p>
+      <ul role="list" class="rodape__redes">
+        {redes.map((r) => <li><a href={r.href} rel="noopener">{r.rotulo}</a></li>)}
+      </ul>
+    </div>
+
+    <details class="rodape__grupo" open data-grupo>
+      <summary><h2>Conteúdo</h2></summary>
+      <ul role="list">
+        {conteudos.map((l) => <li><a href={l.href} rel="noopener">{l.rotulo}</a></li>)}
+      </ul>
+    </details>
+
+    <details class="rodape__grupo" open data-grupo>
+      <summary><h2>Área do aluno</h2></summary>
+      <ul role="list">
+        {acessos.map((l) => <li><a href={l.href} rel="noopener">{l.rotulo}</a></li>)}
+      </ul>
+    </details>
+
+    <details class="rodape__grupo" open data-grupo>
+      <summary><h2>Telefones</h2></summary>
+      <ul role="list">
+        {
+          unidade.telefones.map((t) => (
+            <li>
+              <a href={`tel:+55${t.replace(/\D/g, "")}`}>{t}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </details>
+  </div>
+  <div class="wrap rodape__fim">
+    <p>© 2026 Colégio Córtex. Direitos reservados.</p>
+  </div>
+</footer>
+
+<script>
+  // No celular os grupos do rodapé começam recolhidos; no desktop ficam abertos e sem ação no título.
+  const celular = matchMedia("(max-width: 720px)");
+  const grupos = [...document.querySelectorAll<HTMLDetailsElement>("[data-grupo]")];
+  const ajustar = () => grupos.forEach((g) => (g.open = !celular.matches));
+  ajustar();
+  celular.addEventListener("change", ajustar);
+  grupos.forEach((g) =>
+    g.querySelector("summary")!.addEventListener("click", (e) => {
+      if (!celular.matches) e.preventDefault();
+    }),
+  );
+</script>
+
+<style>
+  .rodape {
+    background: var(--marinho);
+    color: #c9d3e4;
+    padding-block: clamp(3.5rem, 2rem + 4vw, 5rem) 2rem;
+    font-size: var(--t-14);
+  }
+
+  .rodape__grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1.2fr 0.8fr 1fr;
+    gap: 2.5rem var(--gutter);
+  }
+
+  .rodape__marca p {
+    margin-top: 1.25rem;
+    max-width: 22em;
+  }
+
+  .rodape__redes {
+    display: flex;
+    gap: 1.25rem;
+    margin-top: 1.25rem;
+  }
+
+  .rodape h2 {
+    font-size: var(--t-14);
+    font-weight: 650;
+    color: var(--branco);
+    margin-bottom: 0.875rem;
+  }
+
+  .rodape li {
+    padding-block: 0.3rem;
+  }
+
+  .rodape a {
+    text-decoration: none;
+    color: #dfe5e6;
+  }
+
+  .rodape a:hover {
+    color: var(--branco);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  .rodape__grupo summary {
+    list-style: none;
+    cursor: default;
+  }
+
+  .rodape__grupo summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .rodape__unidade {
+    display: block;
+    color: #a9b4b7;
+  }
+
+  .rodape__fim {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #45545b;
+    color: #a9b4b7;
+  }
+
+  @media (max-width: 959px) {
+    .rodape__grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 720px) {
+    .rodape__grid {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+    .rodape__marca {
+      padding-bottom: 1.5rem;
+    }
+    .rodape__redes a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+    }
+    .rodape__grupo {
+      border-top: 1px solid #45545b;
+    }
+    .rodape__grupo summary {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      min-height: 52px;
+      cursor: pointer;
+    }
+    .rodape__grupo summary h2 {
+      margin: 0;
+    }
+    .rodape__grupo summary::after {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-right: 1.5px solid currentColor;
+      border-bottom: 1.5px solid currentColor;
+      transform: translateY(-3px) rotate(45deg);
+      transition: transform 180ms var(--ease);
+    }
+    .rodape__grupo[open] summary::after {
+      transform: translateY(2px) rotate(-135deg);
+    }
+    .rodape__grupo ul {
+      padding-bottom: 1rem;
+    }
+    .rodape__grupo li {
+      padding: 0;
+    }
+    .rodape__grupo a {
+      display: flex;
+      align-items: center;
+      min-height: 44px;
+    }
+    .rodape__fim {
+      margin-top: 0;
+      border-top: 1px solid #45545b;
+    }
+  }
+</style>

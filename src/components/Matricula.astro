@@ -1,0 +1,495 @@
+---
+import { PROVA_DE_BOLSAS, WHATSAPP, WHATSAPP_ROTULO, turmas } from "../data/site";
+
+/** Os três caminhos do formulário. A visita vem primeiro; a Prova de Bolsas é uma das opções. */
+const interesses = [
+  { id: "visita", rotulo: "Agendar uma visita" },
+  { id: "prova", rotulo: "Fazer a Prova de Bolsas" },
+  { id: "informacoes", rotulo: "Tirar dúvidas sobre a matrícula" },
+];
+---
+
+<section class="matricula" id="visita" aria-labelledby="visita-titulo">
+  <div class="wrap matricula__grid">
+    <div class="matricula__info">
+      <h2 id="visita-titulo" class="titulo h2">Agende uma visita</h2>
+      <p class="lead">
+        Deixe seu nome e telefone, e a secretaria liga ou chama no WhatsApp para marcar a visita, a Prova de Bolsas ou
+        responder sobre a matrícula. Pode preencher o aluno ou o responsável.
+      </p>
+
+      <div class="prova" id="bolsas">
+        <p class="matricula__rotulo">Prova de Bolsas Córtex</p>
+        <p class="prova__titulo">Concorra a {PROVA_DE_BOLSAS.desconto} de desconto</p>
+        <p class="prova__texto">
+          Para quem vai cursar a {PROVA_DE_BOLSAS.series}. A inscrição é {PROVA_DE_BOLSAS.inscricao}, e a secretaria
+          confirma por telefone a data da prova. O resultado diz o desconto conquistado.
+        </p>
+        <button type="button" class="prova__acao" data-escolher-prova>Quero fazer a Prova de Bolsas</button>
+      </div>
+    </div>
+
+    <div class="matricula__form">
+      <form class="pedido" data-pedido novalidate>
+        <fieldset>
+          <legend>Quem está preenchendo</legend>
+          <div class="pedido__opcoes">
+            <label><input type="radio" name="quem" value="responsavel" checked /><span>Sou pai, mãe ou responsável</span></label>
+            <label><input type="radio" name="quem" value="aluno" /><span>Sou o aluno</span></label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Série em 2027</legend>
+          <div class="pedido__opcoes">
+            {
+              turmas.map((t, i) => (
+                <label>
+                  <input type="radio" name="serie" value={t.id} data-nome={t.nome} data-prova={t.provaDeBolsas ? "sim" : "nao"} checked={i === 0} />
+                  <span>{t.nome}</span>
+                </label>
+              ))
+            }
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>O que você quer</legend>
+          <div class="pedido__opcoes">
+            {
+              interesses.map((x, i) => (
+                <label>
+                  <input type="radio" name="interesse" value={x.id} checked={i === 0} />
+                  <span>{x.rotulo}</span>
+                </label>
+              ))
+            }
+          </div>
+          <p class="pedido__aviso" data-aviso-extensivo hidden>A Prova de Bolsas vale para a 1ª, a 2ª e a 3ª série.</p>
+        </fieldset>
+
+        <div class="pedido__campos">
+          <label class="pedido__campo">
+            <span data-rotulo-nome>Seu nome</span>
+            <input name="nome" autocomplete="name" required />
+          </label>
+          <label class="pedido__campo">
+            <span>Telefone com DDD</span>
+            <input name="telefone" type="tel" inputmode="tel" autocomplete="tel" placeholder="62 9…" required />
+          </label>
+          <label class="pedido__campo" data-campo-aluno>
+            <span>Nome do aluno</span>
+            <input name="aluno" />
+          </label>
+          <label class="pedido__campo">
+            <span>Escola atual (opcional)</span>
+            <input name="escola" />
+          </label>
+        </div>
+
+        <p class="pedido__erro" data-erro role="alert" hidden></p>
+        <div class="pedido__botoes">
+          <button class="botao" type="submit" data-enviar>Pedir visita</button>
+          <a class="pedido__whats" data-whats href={`https://wa.me/${WHATSAPP}`} target="_blank" rel="noopener">Prefiro o WhatsApp, {WHATSAPP_ROTULO}</a>
+        </div>
+      </form>
+
+      <div class="pedido-ok" data-ok hidden tabindex="-1">
+        <p class="pedido-ok__titulo" data-ok-titulo>Pedido de visita recebido.</p>
+        <p data-ok-texto>A secretaria vai ligar no telefone que você deixou para combinar o dia da visita.</p>
+        <p class="pedido-ok__demo">
+          Demonstração: o pedido já entrou no funil de captação da Plataforma Córtex.
+          <a data-ver-crm href="/plataforma/">Ver o contato no CRM</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <svg class="matricula__ondas" viewBox="0 0 1200 120" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+    <path d="M0 40 Q150 0 300 40 T600 40 T900 40 T1200 40" />
+    <path d="M0 72 Q150 32 300 72 T600 72 T900 72 T1200 72" />
+    <path d="M0 104 Q150 64 300 104 T600 104 T900 104 T1200 104" />
+  </svg>
+</section>
+
+<script>
+  import { pedirPeloSite } from "../plataforma/dominio/acoes";
+  import { loja } from "../plataforma/estado/loja";
+
+  // O pedido vai direto para o funil da captação (na demonstração, o banco local da Plataforma Córtex).
+  const form = document.querySelector<HTMLFormElement>("[data-pedido]")!;
+  const ok = document.querySelector<HTMLElement>("[data-ok]")!;
+  const erro = form.querySelector<HTMLElement>("[data-erro]")!;
+  const whats = form.querySelector<HTMLAnchorElement>("[data-whats]")!;
+  const enviar = form.querySelector<HTMLButtonElement>("[data-enviar]")!;
+  const avisoExtensivo = form.querySelector<HTMLElement>("[data-aviso-extensivo]")!;
+  const campoAluno = form.querySelector<HTMLElement>("[data-campo-aluno]")!;
+  const rotuloNome = form.querySelector<HTMLElement>("[data-rotulo-nome]")!;
+  const prova = form.querySelector<HTMLInputElement>("input[name=interesse][value=prova]")!;
+  const visita = form.querySelector<HTMLInputElement>("input[name=interesse][value=visita]")!;
+  const BOTAO = { visita: "Pedir visita", prova: "Inscrever na Prova de Bolsas", informacoes: "Enviar pedido" };
+  const TEXTO = {
+    visita: (s: string) => `Olá! Quero agendar uma visita ao Colégio Córtex. Série de interesse: ${s}.`,
+    prova: (s: string) => `Olá! Quero me inscrever na Prova de Bolsas do Colégio Córtex para a ${s}.`,
+    informacoes: (s: string) => `Olá! Quero informações sobre a matrícula no Colégio Córtex. Série de interesse: ${s}.`,
+  };
+  const OK = {
+    visita: ["Pedido de visita recebido.", "A secretaria vai ligar no telefone que você deixou para combinar o dia da visita."],
+    prova: ["Inscrição recebida.", "A secretaria vai ligar no telefone que você deixou para confirmar a data da prova."],
+    informacoes: ["Pedido recebido.", "A secretaria vai ligar no telefone que você deixou para responder sobre a matrícula."],
+  };
+  type Interesse = keyof typeof BOTAO;
+
+  const marcado = (nome: string) => form.querySelector<HTMLInputElement>(`input[name=${nome}]:checked`)!;
+
+  function atualizar() {
+    const serie = marcado("serie");
+    const valeProva = serie.dataset.prova === "sim";
+    // Extensivo não tem Prova de Bolsas: a opção fica desligada e a visita é marcada
+    prova.disabled = !valeProva;
+    if (!valeProva && prova.checked) visita.checked = true;
+    avisoExtensivo.hidden = valeProva;
+    const ehAluno = marcado("quem").value === "aluno";
+    campoAluno.hidden = ehAluno;
+    rotuloNome.textContent = ehAluno ? "Seu nome completo" : "Seu nome";
+    const interesse = marcado("interesse").value as Interesse;
+    enviar.textContent = BOTAO[interesse];
+    const texto = TEXTO[interesse](serie.dataset.nome ?? "");
+    whats.href = `${whats.href.split("?")[0]}?text=${encodeURIComponent(texto)}`;
+  }
+  form.addEventListener("change", atualizar);
+  atualizar();
+
+  document.querySelector("[data-escolher-prova]")!.addEventListener("click", () => {
+    const serie = marcado("serie");
+    if (serie.dataset.prova !== "sim") form.querySelector<HTMLInputElement>("input[name=serie][value='1a']")!.checked = true;
+    prova.checked = true;
+    atualizar();
+    form.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" });
+    prova.focus();
+  });
+
+  // os cartões de turma e outros links mandam a série escolhida para cá
+  document.addEventListener("escolher-serie", (e) => {
+    const { serie, interesse } = (e as CustomEvent<{ serie: string; interesse: string }>).detail;
+    const s = form.querySelector<HTMLInputElement>(`input[name=serie][value="${serie}"]`);
+    if (s) s.checked = true;
+    const i = form.querySelector<HTMLInputElement>(`input[name=interesse][value="${interesse}"]`);
+    if (i) i.checked = true;
+    atualizar();
+  });
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const dados = new FormData(form);
+    const interesse = marcado("interesse").value as Interesse;
+    const r = loja.registrarPublico((b, agora) =>
+      pedirPeloSite(
+        b,
+        {
+          quem: marcado("quem").value as "aluno" | "responsavel",
+          nome: String(dados.get("nome") ?? ""),
+          telefone: String(dados.get("telefone") ?? ""),
+          aluno: String(dados.get("aluno") ?? ""),
+          serie: marcado("serie").value,
+          interesse,
+          escolaAtual: String(dados.get("escola") ?? ""),
+        },
+        agora,
+      ),
+    );
+    if (!r.ok) {
+      erro.textContent = r.erro;
+      erro.hidden = false;
+      return;
+    }
+    const familia = r.banco.oportunidades.find((o) => o.id === r.id)?.familiaId;
+    ok.querySelector<HTMLAnchorElement>("[data-ver-crm]")!.href = `/plataforma/?como=u-thiago#/crm/familias/${familia}`;
+    ok.querySelector("[data-ok-titulo]")!.textContent = OK[interesse][0];
+    ok.querySelector("[data-ok-texto]")!.textContent = OK[interesse][1];
+    form.hidden = true;
+    ok.hidden = false;
+    ok.focus();
+  });
+</script>
+
+<style>
+  .matricula {
+    position: relative;
+    padding-block: clamp(4rem, 2rem + 7vw, 8rem) clamp(6rem, 4rem + 7vw, 10rem);
+    background: var(--marinho);
+    color: var(--branco);
+    overflow: hidden;
+  }
+
+  .matricula :global(.titulo) {
+    color: var(--branco);
+  }
+
+  .matricula__grid {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 3rem var(--gutter);
+  }
+
+  .matricula__info {
+    grid-column: 1 / span 5;
+  }
+
+  .matricula__rotulo {
+    font-size: var(--t-14);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--agua-claro);
+    margin-bottom: 0.75rem;
+  }
+
+  .prova {
+    margin-top: 2.25rem;
+    padding: 1.5rem;
+    border: 1px solid rgb(255 255 255 / 0.18);
+    border-radius: calc(2 * var(--r-2));
+  }
+
+  .prova__titulo {
+    font-size: var(--t-24);
+    font-weight: 800;
+    line-height: 1.2;
+    /* o sublinhado amarelo que as peças da campanha usam no percentual */
+    text-decoration: underline;
+    text-decoration-color: var(--amarelo);
+    text-decoration-thickness: 0.14em;
+    text-underline-offset: 0.16em;
+    text-decoration-skip-ink: none;
+  }
+
+  .prova__texto {
+    margin-top: 0.75rem;
+    color: #c9d3e4;
+  }
+
+  .prova__acao {
+    margin-top: 1rem;
+    min-height: 44px;
+    padding: 0.5rem 1.25rem;
+    border: 1px solid var(--agua-claro);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--branco);
+    font-weight: 650;
+    cursor: pointer;
+  }
+
+  .prova__acao:hover {
+    background: rgb(255 255 255 / 0.08);
+  }
+
+  .matricula .lead {
+    margin-top: 1.25rem;
+    color: #c9d3e4;
+  }
+
+  .matricula__form {
+    grid-column: 7 / span 6;
+    padding: clamp(1.25rem, 2.5vw, 2rem);
+    border-radius: calc(2 * var(--r-2));
+    background: var(--branco);
+    color: var(--tinta);
+    box-shadow: 0 24px 48px rgb(0 0 0 / 0.25);
+  }
+
+  .pedido {
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  .pedido fieldset {
+    border: 0;
+    margin: 0;
+    padding: 0;
+  }
+
+  .pedido legend {
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .pedido__opcoes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .pedido__opcoes label {
+    position: relative;
+    cursor: pointer;
+  }
+
+  .pedido__opcoes input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .pedido__opcoes span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0.5rem 0.875rem;
+    border: 1px solid var(--filete);
+    border-radius: 999px;
+    font-size: var(--t-14);
+    font-weight: 600;
+    transition:
+      background-color 160ms var(--ease),
+      border-color 160ms var(--ease),
+      color 160ms var(--ease);
+  }
+
+  .pedido__opcoes label:hover span {
+    border-color: var(--marinho);
+  }
+
+  .pedido__opcoes input:checked + span {
+    background: var(--marinho);
+    border-color: var(--marinho);
+    color: var(--branco);
+  }
+
+  .pedido__opcoes input:disabled + span {
+    opacity: 0.45;
+    text-decoration: line-through;
+    cursor: not-allowed;
+  }
+
+  .pedido__opcoes input:focus-visible + span {
+    outline: 2px solid var(--agua-700);
+    outline-offset: 2px;
+  }
+
+  .pedido__aviso {
+    margin-top: 0.5rem;
+    font-size: var(--t-14);
+    color: var(--tinta-2);
+  }
+
+  .pedido__campos {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+
+  .pedido__campo {
+    display: grid;
+    gap: 0.35rem;
+    font-size: var(--t-14);
+    font-weight: 600;
+  }
+
+  .pedido__campo[hidden] {
+    display: none;
+  }
+
+  .pedido__campo input {
+    min-height: 44px;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--filete);
+    border-radius: var(--r-1);
+    background: var(--branco);
+    color: var(--tinta);
+    font: inherit;
+    font-weight: 400;
+  }
+
+  .pedido__campo input:focus {
+    outline: 2px solid var(--agua-700);
+    outline-offset: 1px;
+  }
+
+  .pedido__erro {
+    color: #b3261e;
+    font-weight: 600;
+  }
+
+  .pedido__botoes {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.5rem;
+  }
+
+  .pedido .botao {
+    border-radius: 999px;
+    padding-inline: 1.5rem;
+  }
+
+  .pedido__whats {
+    font-size: var(--t-14);
+    color: var(--tinta-2);
+  }
+
+  .pedido-ok {
+    display: grid;
+    gap: 0.5rem;
+    outline: none;
+  }
+
+  .pedido-ok[hidden],
+  .pedido[hidden] {
+    display: none;
+  }
+
+  .pedido-ok__titulo {
+    font-size: var(--t-24);
+    font-weight: 800;
+    color: var(--marinho);
+  }
+
+  .pedido-ok__demo {
+    margin-top: 0.5rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--filete);
+    font-size: var(--t-14);
+    color: var(--tinta-2);
+  }
+
+  .pedido-ok__demo a {
+    margin-left: 0.25rem;
+    color: var(--agua-700);
+    font-weight: 700;
+  }
+
+  .matricula__ondas {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: clamp(1rem, 3vw, 2.5rem);
+    width: 100%;
+    height: clamp(48px, 7vw, 96px);
+    fill: none;
+    stroke: var(--agua);
+    stroke-width: 9;
+    opacity: 0.55;
+    pointer-events: none;
+  }
+
+  @media (max-width: 959px) {
+    .matricula__info,
+    .matricula__form {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .pedido__campos {
+      grid-template-columns: 1fr;
+    }
+    .pedido .botao {
+      width: 100%;
+    }
+  }
+</style>

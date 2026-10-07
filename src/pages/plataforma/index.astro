@@ -1,0 +1,31 @@
+---
+import "../../styles/global.css";
+import "../../plataforma/plataforma.css";
+import App from "../../plataforma/App";
+---
+
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Plataforma Córtex</title>
+    <meta name="description" content="Protótipo da plataforma do Colégio Córtex: aluno, professor, responsável, gestão e captação. Dados fictícios." />
+    <meta name="robots" content="noindex" />
+    <meta name="theme-color" content="#0a1d3b" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#061327" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="/brand/simbolo.svg" type="image/svg+xml" />
+    <meta name="color-scheme" content="light dark" />
+    <script is:inline>
+      // aplica o tema escolhido antes da primeira pintura, sem piscar
+      try {
+        const t = localStorage.getItem("cortex-plataforma:tema");
+        if (t === "claro" || t === "escuro") document.documentElement.setAttribute("data-tema", t);
+      } catch {}
+    </script>
+  </head>
+  <body class="plataforma">
+    <App client:only="preact" />
+    <noscript>A Plataforma Córtex precisa de JavaScript ativado.</noscript>
+  </body>
+</html>
