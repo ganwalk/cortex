@@ -61,6 +61,8 @@ for (const tema of ["claro", "escuro"]) {
 const contexto = await navegador.newContext({ ...computador, colorScheme: "light" });
 const pagina = await contexto.newPage();
 await pagina.goto(`${BASE}/site/`, { waitUntil: "networkidle" });
+// a barra das etapas fica por cima dos botões da hero; na captura, só o site
+await pagina.addStyleTag({ content: ".etapa-plataforma { display: none !important; }" });
 await pagina.waitForTimeout(3200); // o retrato termina de se formar
 await pagina.screenshot({ path: `${SAIDA}site-claro.jpg`, type: "jpeg", quality: 82 });
 console.log("site-claro.jpg");

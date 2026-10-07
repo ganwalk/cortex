@@ -908,7 +908,7 @@
           });
           const chamado = k(lt, 3.2, 3.5);
           $(".lf3", r).style.background = `rgb(226 242 242 / ${chamado})`;
-          $(".lf3", r).style.boxShadow = `inset 4px 0 0 rgb(0 116 121 / ${chamado})`;
+          $(".lf3", r).style.boxShadow = `inset 0 0 0 2px rgb(0 116 121 / ${chamado})`;
           const passo1 = k(lt, 1.6, 2.0, eio), passo2 = k(lt, 2.9, 3.3, eio);
           $$(".num", r).forEach((n, i) => pos(n, { y: (i - passo1 - passo2) * 150 }));
           pos($(".vez", r), { o: k(lt, 3.4, 3.7), s: lerp(0.95, 1, k(lt, 3.4, 3.9, eb)) });

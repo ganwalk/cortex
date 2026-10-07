@@ -18,7 +18,7 @@ npm run build    # gera dist/
 npm run check    # tipos e diagnósticos do Astro
 npm test         # regras da plataforma e verificação de texto (vitest)
 npm run textos   # só a verificação de texto, com avisos
-npm run telas    # recaptura as telas da página inicial (com o servidor ligado)
+npm run telas    # recaptura as telas da página inicial (com o servidor ligado); o build seguinte muda o ?v= de cada captura, e a Vercel serve a nova
 npm run video    # grava o vídeo em public/video/ (precisa de ffmpeg e python3 com numpy)
 ```
 

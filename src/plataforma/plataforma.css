@@ -416,7 +416,7 @@ html[data-tema="escuro"] .plataforma {
 .lateral__item[aria-current="page"] {
   background: var(--sup-2);
   color: var(--texto);
-  box-shadow: inset 3px 0 0 var(--acao);
+  box-shadow: inset 0 0 0 1px var(--linha-forte);
 }
 .lateral__n {
   margin-left: auto;
@@ -1657,7 +1657,8 @@ a.linha > .icone:last-child {
   align-items: flex-start;
   gap: 0.5rem;
   padding: 0.7rem 0.9rem;
-  border-left: 3px solid var(--linha-forte);
+  border: 1px solid var(--linha-forte);
+  border-radius: var(--r-1);
   background: var(--sup-2);
   font-size: var(--t-14);
 }
@@ -2259,7 +2260,7 @@ a.linha > .icone:last-child {
     flex: 1 0 64px;
   }
   .lateral__item[aria-current="page"] {
-    box-shadow: inset 0 2px 0 var(--acao);
+    box-shadow: inset 0 0 0 1px var(--acao);
   }
   .lateral__item {
     position: relative;
@@ -2551,7 +2552,7 @@ html[data-tema="escuro"] .plataforma {
 }
 .lateral__item[aria-current="page"] {
   background: var(--acao-suave);
-  box-shadow: inset 3px 0 0 var(--acao);
+  box-shadow: inset 0 0 0 1px var(--acao);
 }
 .lateral__item[aria-current="page"] .icone {
   color: var(--acao);
@@ -2575,7 +2576,7 @@ html[data-tema="escuro"] .plataforma {
 }
 .kanban__coluna {
   border-top-width: 0;
-  box-shadow: inset 0 2px 0 var(--linha-forte);
+  box-shadow: inset 0 0 0 1px var(--linha);
 }
 .estado {
   border-style: solid;

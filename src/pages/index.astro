@@ -3,7 +3,19 @@ import "../styles/global.css";
 import "../plataforma/plataforma.css";
 import { fluxo, mudancas, reflexos } from "../data/fluxo";
 
+import { readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+
 const foto = (id: string) => `/plataforma/pessoas/${id.replace(/^u-/, "")}.jpg`;
+// endereço da captura com a versão do arquivo: a Vercel guarda /plataforma/ em cache por 7 dias,
+// e cada captura nova (npm run telas) ganha um endereço novo
+const tela = (nome: string) => {
+  const versao = createHash("sha1")
+    .update(readFileSync(`${process.cwd()}/public/plataforma/telas/${nome}.jpg`))
+    .digest("hex")
+    .slice(0, 8);
+  return `/plataforma/telas/${nome}.jpg?v=${versao}`;
+};
 const rostos = ["u-simone", "u-isabela", "u-carolina", "u-gustavo", "u-larissa", "u-renata", "u-adriana", "u-tatiane"];
 const telas = fluxo.filter((e) => e.id !== "matricula");
 ---
@@ -23,7 +35,7 @@ const telas = fluxo.filter((e) => e.id !== "matricula");
     <meta name="color-scheme" content="light dark" />
     <link rel="icon" href="/brand/simbolo.svg" type="image/svg+xml" />
     <meta property="og:title" content="Plataforma Córtex" />
-    <meta property="og:image" content="/plataforma/telas/crm-claro.jpg" />
+    <meta property="og:image" content={tela("crm-claro")} />
     <script is:inline>
       try {
         const t = localStorage.getItem("cortex-plataforma:tema");
@@ -91,12 +103,12 @@ const telas = fluxo.filter((e) => e.id !== "matricula");
             </svg>
             <figure class="hub-janela">
               <span class="hub-janela__barra"><i></i><i></i><i></i></span>
-              <img class="tela-clara" src="/plataforma/telas/crm-claro.jpg" alt="" width="1600" height="1000" />
-              <img class="tela-escura" src="/plataforma/telas/crm-escuro.jpg" alt="" width="1600" height="1000" />
+              <img class="tela-clara" src={tela("crm-claro")} alt="" width="1600" height="1000" />
+              <img class="tela-escura" src={tela("crm-escuro")} alt="" width="1600" height="1000" />
             </figure>
             <figure class="hub-celular">
-              <img class="tela-clara" src="/plataforma/telas/aluno-celular-claro.jpg" alt="" width="780" height="1560" />
-              <img class="tela-escura" src="/plataforma/telas/aluno-celular-escuro.jpg" alt="" width="780" height="1560" />
+              <img class="tela-clara" src={tela("aluno-celular-claro")} alt="" width="780" height="1560" />
+              <img class="tela-escura" src={tela("aluno-celular-escuro")} alt="" width="780" height="1560" />
             </figure>
             <div class="hub-evento hub-evento--1">
               <img src="/plataforma/pessoas/mulher-3.jpg" alt="" width="36" height="36" />
@@ -215,17 +227,17 @@ const telas = fluxo.filter((e) => e.id !== "matricula");
                       <i />
                     </span>
                     {e.id === "site" ? (
-                      <img src="/plataforma/telas/site-claro.jpg" alt="Site do Colégio Córtex com a chamada para agendar visita" width="1600" height="1000" loading="lazy" />
+                      <img src={tela("site-claro")} alt="Site do Colégio Córtex com o retrato de uma aluna e a chamada para agendar visita" width="1600" height="1000" loading="lazy" />
                     ) : (
                       <>
-                        <img class="tela-clara" src={`/plataforma/telas/${e.tela}-claro.jpg`} alt={`Tela do módulo ${e.titulo}`} width="1600" height="1000" loading="lazy" />
-                        <img class="tela-escura" src={`/plataforma/telas/${e.tela}-escuro.jpg`} alt={`Tela do módulo ${e.titulo}`} width="1600" height="1000" loading="lazy" />
+                        <img class="tela-clara" src={tela(`${e.tela}-claro`)} alt={`Tela do módulo ${e.titulo}`} width="1600" height="1000" loading="lazy" />
+                        <img class="tela-escura" src={tela(`${e.tela}-escuro`)} alt={`Tela do módulo ${e.titulo}`} width="1600" height="1000" loading="lazy" />
                       </>
                     )}
                     {e.celular && (
                       <span class="modulo-linha__celular" aria-hidden="true">
-                        <img class="tela-clara" src={`/plataforma/telas/${e.celular}-claro.jpg`} alt="" width="780" height="1560" loading="lazy" />
-                        <img class="tela-escura" src={`/plataforma/telas/${e.celular}-escuro.jpg`} alt="" width="780" height="1560" loading="lazy" />
+                        <img class="tela-clara" src={tela(`${e.celular}-claro`)} alt="" width="780" height="1560" loading="lazy" />
+                        <img class="tela-escura" src={tela(`${e.celular}-escuro`)} alt="" width="780" height="1560" loading="lazy" />
                       </span>
                     )}
                   </figure>
