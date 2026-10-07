@@ -2505,3 +2505,203 @@ a.linha > .icone:last-child {
     grid-row: 2;
   }
 }
+
+/* ---------- acabamento ----------
+   Superfícies com cantos maiores e sombra em camadas, barra com brilho leve, movimento curto nas
+   entradas de tela, nas barras de nota e no hover dos cartões clicáveis. Nada se move com
+   prefers-reduced-motion. */
+
+.plataforma {
+  --r-1: 10px;
+  --r-2: 16px;
+  --curva: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --sombra-cartao: 0 1px 2px rgb(10 29 59 / 0.04), 0 10px 28px -16px rgb(10 29 59 / 0.18);
+  --sombra-alta: 0 2px 6px rgb(10 29 59 / 0.06), 0 22px 44px -20px rgb(10 29 59 / 0.3);
+  --brilho-acao: 0 1px 0 rgb(255 255 255 / 0.18) inset, 0 8px 18px -10px rgb(0 116 121 / 0.7);
+}
+
+@media (prefers-color-scheme: dark) {
+  html:not([data-tema="claro"]) .plataforma {
+    --sombra-cartao: 0 1px 0 rgb(255 255 255 / 0.03) inset, 0 12px 30px -16px rgb(0 0 0 / 0.7);
+    --sombra-alta: 0 1px 0 rgb(255 255 255 / 0.05) inset, 0 24px 48px -18px rgb(0 0 0 / 0.85);
+    --brilho-acao: 0 1px 0 rgb(255 255 255 / 0.25) inset, 0 8px 22px -10px rgb(79 207 208 / 0.45);
+  }
+}
+html[data-tema="escuro"] .plataforma {
+  --sombra-cartao: 0 1px 0 rgb(255 255 255 / 0.03) inset, 0 12px 30px -16px rgb(0 0 0 / 0.7);
+  --sombra-alta: 0 1px 0 rgb(255 255 255 / 0.05) inset, 0 24px 48px -18px rgb(0 0 0 / 0.85);
+  --brilho-acao: 0 1px 0 rgb(255 255 255 / 0.25) inset, 0 8px 22px -10px rgb(79 207 208 / 0.45);
+}
+
+/* barra: o marinho com um reflexo de cima para baixo */
+.barra {
+  background-image: linear-gradient(180deg, rgb(255 255 255 / 0.05), transparent 70%);
+  box-shadow: 0 1px 0 rgb(255 255 255 / 0.06), 0 10px 30px -18px rgb(6 19 39 / 0.8);
+}
+.portais__item[aria-current="page"] {
+  box-shadow: 0 2px 10px -4px rgb(0 0 0 / 0.45);
+}
+
+/* navegação lateral */
+.lateral__item {
+  transition:
+    background-color 180ms var(--curva),
+    color 180ms var(--curva),
+    box-shadow 180ms var(--curva);
+}
+.lateral__item[aria-current="page"] {
+  background: var(--acao-suave);
+  box-shadow: inset 3px 0 0 var(--acao);
+}
+.lateral__item[aria-current="page"] .icone {
+  color: var(--acao);
+}
+
+/* superfícies */
+.linhas,
+.aviso,
+.servico,
+.plantao,
+.filho-cartao,
+.tabela-rolagem,
+.painel-fila,
+.comprovante,
+.entrada__pessoa {
+  box-shadow: 0 0 0 1px var(--linha), var(--sombra-cartao);
+}
+.cartao-op {
+  border-radius: 12px;
+  box-shadow: 0 0 0 1px var(--linha), var(--sombra-cartao);
+}
+.kanban__coluna {
+  border-top-width: 0;
+  box-shadow: inset 0 2px 0 var(--linha-forte);
+}
+.estado {
+  border-style: solid;
+  border-color: var(--linha);
+  background:
+    radial-gradient(28rem 10rem at 0 0, var(--acao-suave), transparent 70%),
+    var(--sup);
+}
+.janela {
+  box-shadow: 0 0 0 1px var(--linha), 0 40px 100px -20px var(--sombra-forte);
+}
+.janela::backdrop {
+  background: rgb(6 19 39 / 0.45);
+  backdrop-filter: blur(4px);
+}
+
+/* o que se clica responde ao cursor */
+.servico,
+.entrada__pessoa,
+.cartao-op,
+.aviso:has(a, button) {
+  transition:
+    transform 220ms var(--curva),
+    box-shadow 220ms var(--curva);
+}
+.servico:hover,
+.entrada__pessoa:hover,
+.cartao-op:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 0 1px var(--linha-forte), var(--sombra-alta);
+}
+.tabela tbody tr {
+  transition: background-color 160ms var(--curva);
+}
+.tabela tbody tr:hover {
+  background: var(--sup-2);
+}
+
+/* botões */
+.btn {
+  transition:
+    background-color 160ms var(--curva),
+    border-color 160ms var(--curva),
+    color 160ms var(--curva),
+    box-shadow 200ms var(--curva),
+    transform 160ms var(--curva);
+}
+.btn--primario {
+  box-shadow: var(--brilho-acao);
+}
+.btn--primario:hover {
+  transform: translateY(-1px);
+}
+.btn:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+}
+.abas__item {
+  transition:
+    background-color 160ms var(--curva),
+    color 160ms var(--curva),
+    box-shadow 160ms var(--curva);
+}
+
+/* números do painel com mais presença */
+.numero__valor {
+  font-size: clamp(1.75rem, 1.2rem + 1.6vw, 2.375rem);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* cada tela entra em cascata, de baixo para cima */
+  .pagina > * {
+    animation: plataforma-subir 520ms var(--curva) backwards;
+  }
+  .pagina > :nth-child(2) {
+    animation-delay: 60ms;
+  }
+  .pagina > :nth-child(3) {
+    animation-delay: 120ms;
+  }
+  .pagina > :nth-child(4) {
+    animation-delay: 180ms;
+  }
+  .pagina > :nth-child(n + 5) {
+    animation-delay: 240ms;
+  }
+  .numeros .numero {
+    animation: plataforma-subir 520ms var(--curva) backwards;
+  }
+  .numeros .numero:nth-child(2) {
+    animation-delay: 80ms;
+  }
+  .numeros .numero:nth-child(3) {
+    animation-delay: 160ms;
+  }
+  .numeros .numero:nth-child(n + 4) {
+    animation-delay: 240ms;
+  }
+  /* barras de nota, progresso e funil crescem da esquerda */
+  .progresso span,
+  .medidor span,
+  .barras__valor {
+    transform-origin: 0 50%;
+    animation: plataforma-crescer 900ms var(--curva) 200ms backwards;
+  }
+  .janela[open] {
+    animation: plataforma-janela 280ms var(--curva);
+  }
+  .kanban__cartoes > * {
+    animation: plataforma-subir 420ms var(--curva) backwards;
+  }
+}
+
+@keyframes plataforma-subir {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+@keyframes plataforma-crescer {
+  from {
+    transform: scaleX(0);
+  }
+}
+@keyframes plataforma-janela {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+}
