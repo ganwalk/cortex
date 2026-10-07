@@ -2,10 +2,10 @@
 """
 Trilha do vídeo da Plataforma Córtex, sintetizada aqui mesmo (sem amostras de terceiros).
 
-Ré maior, 72 batidas por minuto, compasso de 3,333 s. Pad suave, piano de feltro em arpejo,
+Ré maior, 71 batidas por minuto, compasso de 3,381 s. Pad suave, piano de feltro em arpejo,
 baixo longo e uma linha alta descendente. Sem bateria e sem efeitos de transição.
-Os compassos acompanham as cenas: o compasso 19 abre o fluxo (63,3 s) e o 21 cai na
-assinatura (70,0 s), onde o acorde final soa até o fim.
+Os compassos acompanham as cenas: o compasso 19 abre o fluxo (64,2 s) e o 21 cai na
+assinatura (71,0 s), onde o acorde final soa até o fim.
 
 Uso: python3 scripts/trilha.py [saida.wav]   (padrão: video/trilha.wav)
 Só precisa de numpy.
@@ -16,8 +16,8 @@ import wave
 import numpy as np
 
 TAXA = 48000
-DURACAO = 75.4
-COMPASSO = 70.0 / 21  # 21 compassos até a assinatura
+DURACAO = 76.4
+COMPASSO = 71.0 / 21  # 21 compassos até a assinatura
 N = int(DURACAO * TAXA)
 rng = np.random.default_rng(11)
 
@@ -164,7 +164,7 @@ dir_ = dir_ * 0.72 + molhado_d * 0.55
 t = np.arange(N) / TAXA
 env = np.clip(t / 1.8, 0, 1) * np.clip((DURACAO - t) / 3.2, 0, 1)
 estereo = np.stack([esq, dir_], axis=1) * env[:, None]
-rms = np.sqrt(np.mean(estereo[int(8 * TAXA) : int(63 * TAXA)] ** 2))
+rms = np.sqrt(np.mean(estereo[int(8 * TAXA) : int(64 * TAXA)] ** 2))
 estereo *= 10 ** (-18 / 20) / rms  # cerca de -16 LUFS no corpo da música
 estereo = np.tanh(estereo * 1.1) / 1.1  # segura picos sem bombear
 pico = np.max(np.abs(estereo))

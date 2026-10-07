@@ -49,8 +49,9 @@ O título é a frase da campanha (“Você já sabe onde quer chegar. Agora esco
 
 ## Vídeo
 
-`video/cenas.html` desenha cada quadro em função do tempo; `scripts/video.mjs` abre a página no Chromium, grava 30 quadros por segundo e junta a trilha de `scripts/trilha.py` com o ffmpeg. São 75 segundos, em 12 cenas: abertura, acesso, as sete etapas (site e captação, Prova de Bolsas, matrícula, responsável, aluno na redação e no plantão, correção por competência, painel da coordenação), o fluxo inteiro e a assinatura.
+`video/cenas.html` desenha cada quadro em função do tempo; `scripts/video.mjs` abre a página no Chromium, grava 30 quadros por segundo e junta a trilha de `scripts/trilha.py` com o ffmpeg. São 76 segundos, em 12 cenas: abertura, acesso, as sete etapas (site e captação, Prova de Bolsas, matrícula, responsável, aluno na redação e no plantão, correção por competência, painel da coordenação), o fluxo inteiro e a assinatura.
 
+- A abertura parte do nome da escola: neurônios acendem, se ligam e desenham o contorno de um cérebro (o córtex), sinais correm pelas ligações e o símbolo nasce no meio. O mesmo cérebro fica claro atrás da assinatura, uma rede de neurônios bem leve anda ao fundo das telas e, no fluxo, as sete etapas trocam sinais como sinapses.
 - Cada legenda tem até 11 palavras e fica pelo menos 5 segundos na tela. Todas passam por `npm run textos`.
 - O vídeo mostra a plataforma pronta, com os dados fictícios da demonstração, e termina com “Pessoas e dados fictícios.”
 - A trilha é sintetizada no próprio script (Ré maior, 72 batidas por minuto, piano de feltro, pad e baixo), sem bateria e sem efeitos de transição. Os compassos caem nas viradas do fluxo e da assinatura.
