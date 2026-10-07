@@ -2,7 +2,7 @@
 
 | Arquivo | Origem |
 |---|---|
-| `aluna-*.webp` | Peça da Prova de Bolsas do Colégio Córtex (`referencias/prova-de-bolsas.jpg`), recortada em uma aluna, sem o texto. Usada na hero. |
+| `alunos-1600.webp` | Post de volta às aulas do Instagram do colégio (`referencias/post-volta-as-aulas.jpg`), recortado no garoto de óculos e nas duas garotas da direita, sem a faixa, a arte e o texto do post. Os cantos são a mesma foto desfocada. Usada na hero. |
 | `campanha-*.webp` | A mesma peça, recortada nos três alunos, sem o texto. Usada como imagem de compartilhamento. |
 | `simulado-*.webp` | Pexels, https://www.pexels.com/photo/6684219/ |
 | `redacao-*.webp` | Pexels, https://www.pexels.com/photo/6683673/ |

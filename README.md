@@ -36,7 +36,7 @@ Regras de texto e de contribuição: [`CLAUDE.md`](CLAUDE.md).
 
 ### Hero
 
-O site abre com a hero dentro de uma moldura branca arredondada, e o menu é a faixa de cima dessa moldura. Ao rolar, a moldura se fecha e o menu vira uma barra flutuante. O título é a frase da campanha (“Você já sabe onde quer chegar. Agora escolha onde vai começar.”). Uma aluna da foto da campanha entra no lugar da folha marinho do símbolo; o X fica no canto, sobre o verde-água. A foto original é pequena (o recorte tem 510 px de largura); com a foto em alta resolução, a hero fica mais nítida. O quadrado e o X entram por último, como quem marca a resposta; `prefers-reduced-motion` desliga a animação.
+O site abre com a hero dentro de uma moldura branca arredondada, e o menu é a faixa de cima dessa moldura. Ao rolar, a moldura se fecha e o menu vira uma barra flutuante. O título é a frase da campanha (“Você já sabe onde quer chegar. Agora escolha onde vai começar.”). Três alunos de um post do Instagram do colégio entram no lugar da folha marinho do símbolo; o X fica no canto, sobre o verde-água. Os cantos da folha que a foto não alcança mostram a mesma foto desfocada. A foto vem de um print de celular (470 px de largura no recorte); com o arquivo original, a hero fica mais nítida.
 
 ### Seções
 
@@ -49,11 +49,11 @@ O site abre com a hero dentro de uma moldura branca arredondada, e o menu é a f
 
 - `public/brand/simbolo.svg` e `simbolo-branco.svg`: vetor **provisório**, redesenhado em formas geométricas a partir dos PNGs de `referencias/`. Fiel nas proporções, mas não é o arquivo oficial.
 - O nome “Colégio Córtex” é texto em Montserrat (`src/components/Logo.astro`), não um desenho do logotipo. Trocar pelo vetor oficial assim que existir.
-- `referencias/`: as peças usadas como fonte (logotipos, Prova de Bolsas, Vestibular UEG, Dia do Amigo, avatar e um print do feed do Instagram).
+- `referencias/`: as peças usadas como fonte (logotipos, Prova de Bolsas, Vestibular UEG, Dia do Amigo, post de volta às aulas, avatar e um print do feed do Instagram).
 
 ## Fotos
 
-`public/img/CREDITOS.md` lista a origem de cada foto. A da hero é um recorte da campanha da Prova de Bolsas do colégio. As outras são do Pexels e mostram pessoas que não são do Córtex: servem para a demonstração e devem ser trocadas por fotos do colégio.
+`public/img/CREDITOS.md` lista a origem de cada foto. A da hero é um recorte de um post do Instagram do colégio. As outras são do Pexels e mostram pessoas que não são do Córtex: servem para a demonstração e devem ser trocadas por fotos do colégio.
 
 ## Dados
 
