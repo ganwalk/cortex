@@ -14,9 +14,9 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 
 const RAIZ = new URL("..", import.meta.url).pathname;
-const PASTAS = ["src", "docs"];
+const PASTAS = ["src", "docs", "video", "scripts"];
 const ARQUIVOS = ["README.md"];
-const EXTENSOES = [".astro", ".ts", ".tsx", ".md", ".mjs", ".html"];
+const EXTENSOES = [".astro", ".ts", ".tsx", ".md", ".mjs", ".html", ".py"];
 const IGNORAR = [
   "scripts/textos.mjs",
   "CLAUDE.md",

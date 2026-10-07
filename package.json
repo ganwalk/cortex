@@ -9,7 +9,8 @@
     "check": "astro check",
     "test": "vitest run",
     "textos": "node scripts/textos.mjs --todos",
-    "telas": "node scripts/telas.mjs"
+    "telas": "node scripts/telas.mjs",
+    "video": "node scripts/video.mjs"
   },
   "dependencies": {
     "@astrojs/preact": "^4.1.3",

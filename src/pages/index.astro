@@ -166,7 +166,7 @@ const telas = fluxo.filter((e) => e.id !== "matricula");
               Todos os módulos leem o mesmo cadastro de pessoas, turmas e vínculos. Quando alguém age num módulo, os outros
               mostram o resultado sem planilha nem repasse, e cada pessoa vê só o que o vínculo dela permite.
             </p>
-            <a class="hub-link" href="/site/#visita">Teste: peça uma visita no site e veja o contato chegar ao funil →</a>
+            <a class="btn btn--primario hub-btn hub-video" href="/video/">Ver vídeo prévia</a>
           </div>
           <ol class="reflexos" role="list">
             {
@@ -478,12 +478,8 @@ const telas = fluxo.filter((e) => e.id !== "matricula");
     border-radius: 50%;
     object-fit: cover;
   }
-  .hub-link {
-    display: inline-block;
+  .hub-video {
     margin-top: 1.5rem;
-    color: var(--acao-link);
-    font-weight: 650;
-    text-underline-offset: 3px;
   }
 
   /* ---------- abertura ---------- */

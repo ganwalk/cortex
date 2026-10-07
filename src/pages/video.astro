@@ -1,0 +1,81 @@
+---
+import "../styles/global.css";
+import "../plataforma/plataforma.css";
+
+// Os dois arquivos saem de `npm run video` (video/cenas.html e scripts/video.mjs).
+const horizontal = "/video/plataforma-cortex-16x9.mp4";
+const vertical = "/video/plataforma-cortex-9x16.mp4";
+---
+
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Vídeo da Plataforma Córtex</title>
+    <meta name="description" content="Vídeo de 75 segundos com as sete etapas da Plataforma Córtex, do pedido de visita no site ao painel da coordenação." />
+    <meta name="theme-color" content="#061327" />
+    <link rel="icon" href="/brand/simbolo.svg" type="image/svg+xml" />
+    <meta property="og:title" content="Vídeo da Plataforma Córtex" />
+    <meta property="og:image" content="/video/plataforma-cortex-16x9.jpg" />
+  </head>
+  <body class="plataforma video-pagina">
+    <main class="video-palco">
+      <!-- tela em pé recebe o vídeo vertical (ver o script); o resto, o horizontal -->
+      <video class="video-filme" src={horizontal} controls playsinline preload="metadata" poster="/video/plataforma-cortex-16x9.jpg" data-filme></video>
+      <nav class="video-acoes" aria-label="Outros formatos">
+        <a class="btn btn--secundario video-btn" href="/">Voltar ao início</a>
+        <a class="btn btn--secundario video-btn" href={horizontal} download>Baixar 16:9</a>
+        <a class="btn btn--secundario video-btn" href={vertical} download>Baixar 9:16</a>
+      </nav>
+    </main>
+
+    <script>
+      // celular em pé: troca para o vídeo vertical antes de começar
+      const filme = document.querySelector<HTMLVideoElement>("[data-filme]")!;
+      if (matchMedia("(orientation: portrait)").matches) {
+        filme.poster = "/video/plataforma-cortex-9x16.jpg";
+        filme.src = "/video/plataforma-cortex-9x16.mp4";
+      }
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  .video-pagina {
+    margin: 0;
+    min-height: 100dvh;
+    background: #061327;
+    color: #eef3f8;
+  }
+  .video-palco {
+    min-height: 100dvh;
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+    gap: 16px;
+    padding: 16px;
+  }
+  .video-filme {
+    width: 100%;
+    height: 100%;
+    max-height: calc(100dvh - 100px);
+    align-self: center;
+    background: #000;
+    border-radius: 12px;
+  }
+  .video-acoes {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+  }
+  .video-btn {
+    min-height: 44px;
+    background: transparent;
+    color: #eef3f8;
+    border-color: #1c3561;
+  }
+  .video-btn:hover {
+    background: #0e2547;
+  }
+</style>

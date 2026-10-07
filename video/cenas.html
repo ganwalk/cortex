@@ -1,0 +1,905 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <title>Plataforma Córtex: vídeo</title>
+    <!--
+      Vídeo de apresentação da Plataforma Córtex, animado quadro a quadro.
+      Tudo é função do tempo: render(t) desenha o quadro do segundo t, sem transições de CSS.
+      Formato pela busca: ?f=169 (1920 x 1080) ou ?f=916 (1080 x 1920).
+      Gravação: npm run video (scripts/video.mjs). Para ver no navegador, abra com ?tocar.
+      Cada legenda fica pelo menos 5 segundos inteira na tela.
+    -->
+    <style>
+      @font-face {
+        font-family: "Montserrat";
+        font-weight: 100 900;
+        src: url("../node_modules/@fontsource-variable/montserrat/files/montserrat-latin-wght-normal.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "Montserrat";
+        font-weight: 100 900;
+        src: url("../node_modules/@fontsource-variable/montserrat/files/montserrat-latin-ext-wght-normal.woff2") format("woff2");
+        unicode-range: U+0100-024F, U+1E00-1EFF;
+      }
+      @font-face {
+        font-family: "Inter";
+        font-weight: 100 900;
+        src: url("../node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "Inter";
+        font-weight: 100 900;
+        src: url("../node_modules/@fontsource-variable/inter/files/inter-latin-ext-wght-normal.woff2") format("woff2");
+        unicode-range: U+0100-024F, U+1E00-1EFF;
+      }
+      :root {
+        --marinho: #0a1d3b;
+        --marinho-800: #0e2547;
+        --agua: #00959a;
+        --agua-700: #007479;
+        --agua-claro: #4fcfd0;
+        --agua-fundo: #e2f2f2;
+        --amarelo: #fbd953;
+        --gelo: #dbe4ee;
+        --nevoa: #eef3f8;
+        --palco: #f6f8fb;
+        --tinta: #0d1b33;
+        --tinta-2: #4a5872;
+        --filete: #d5dde8;
+        --borda: #c5d0dd;
+        --ok: #1f7a4d;
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      html, body { background: #000; overflow: hidden; }
+      body { font-family: "Inter", system-ui, sans-serif; color: var(--tinta); -webkit-font-smoothing: antialiased; }
+
+      #palco { position: relative; overflow: hidden; background: var(--palco); }
+      .f169 { width: 1920px; height: 1080px; }
+      .f916 { width: 1080px; height: 1920px; }
+
+      /* fundo: pontos finos, como no gabarito da página do site */
+      .fundo { position: absolute; inset: -40px; background-image: radial-gradient(circle, #cbd5e2 1.6px, transparent 2px); background-size: 34px 34px; -webkit-mask-image: radial-gradient(ellipse 70% 70% at 72% 38%, #000 10%, transparent 75%); }
+
+      .cena { position: absolute; inset: 0; opacity: 0; }
+
+      /* legenda: olho e título */
+      .legenda { position: absolute; }
+      .f169 .legenda { left: 130px; top: 50%; width: 650px; transform: translateY(-50%); }
+      .f916 .legenda { left: 80px; top: 190px; width: 920px; }
+      .olho { font-size: 22px; font-weight: 650; letter-spacing: 0.1em; text-transform: uppercase; color: var(--agua-700); margin-bottom: 24px; display: flex; align-items: center; gap: 14px; }
+      .f916 .olho { font-size: 28px; }
+      .olho::before { content: ""; width: 36px; height: 3px; background: var(--agua); border-radius: 2px; }
+      .titulo { font-family: "Montserrat", sans-serif; font-size: 60px; line-height: 1.14; font-weight: 650; letter-spacing: -0.02em; color: var(--marinho); }
+      .f916 .titulo { font-size: 70px; }
+      .titulo .m { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: 0.1em; margin-bottom: -0.1em; }
+      .titulo .m > span { display: inline-block; }
+
+      /* caixa de 900 x 800 onde a interface acontece; o formato só muda a escala */
+      .caixa { position: absolute; width: 900px; height: 800px; transform-origin: 0 0; }
+      .f169 .caixa { left: 900px; top: 140px; }
+      .f916 .caixa { left: 40px; top: 700px; scale: 1.111; }
+
+      .abs { position: absolute; }
+
+      /* janela da plataforma */
+      .jan { position: absolute; background: var(--nevoa); color: var(--tinta); border-radius: 20px; overflow: hidden; border: 1px solid var(--filete); box-shadow: 0 30px 70px rgb(10 29 59 / 0.14), 0 2px 6px rgb(10 29 59 / 0.06); }
+      .jan-barra { height: 62px; background: var(--marinho); color: #fff; display: flex; align-items: center; gap: 12px; padding: 0 22px; font-size: 20px; }
+      .jan-barra .simb { width: 30px; height: 30px; }
+      .jan-barra .marca b { font-weight: 700; }
+      .jan-pessoa { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+      .jan-pessoa img { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; }
+      .jan-pessoa span { display: flex; flex-direction: column; line-height: 1.2; font-size: 17px; font-weight: 600; }
+      .jan-pessoa small { color: #b6c3d6; font-size: 14px; font-weight: 400; }
+      .jan-corpo { padding: 26px 28px; }
+      .jan-h { font-family: "Montserrat", sans-serif; font-size: 32px; font-weight: 650; letter-spacing: -0.01em; color: var(--marinho); }
+      .jan-sub { font-size: 19px; color: var(--tinta-2); margin-top: 6px; }
+
+      /* celular */
+      .cel { position: absolute; width: 380px; height: 780px; border-radius: 54px; background: var(--marinho); padding: 11px; box-shadow: 0 30px 70px rgb(10 29 59 / 0.22), 0 0 0 1px #1c3561; }
+      .cel-tela { position: relative; width: 100%; height: 100%; border-radius: 44px; overflow: hidden; background: var(--nevoa); color: var(--tinta); }
+      .cel-barra { height: 92px; padding: 34px 22px 0; background: var(--marinho); display: flex; align-items: center; justify-content: space-between; }
+      .cel-barra .simb { width: 32px; height: 32px; }
+      .cel-barra .av { width: 40px; height: 40px; }
+      .cel-corpo { position: absolute; left: 0; right: 0; top: 92px; padding: 22px; }
+      .cel-h { font-family: "Montserrat", sans-serif; font-size: 28px; font-weight: 650; line-height: 1.15; letter-spacing: -0.01em; color: var(--marinho); }
+      .cel-sub { font-size: 17px; color: var(--tinta-2); margin-top: 8px; line-height: 1.35; }
+
+      /* peças comuns */
+      .cartao { background: #fff; border: 1px solid var(--filete); border-radius: 14px; padding: 18px 20px; color: var(--tinta); }
+      .cartao b { font-weight: 650; }
+      .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; height: 56px; padding: 0 24px; border-radius: 10px; background: var(--agua-700); color: #fff; font-weight: 650; font-size: 21px; white-space: nowrap; }
+      .btn.ok { background: var(--ok); }
+      .selo { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--filete); border-radius: 999px; padding: 4px 13px; font-size: 16px; font-weight: 600; background: #fff; color: var(--tinta); white-space: nowrap; }
+      .selo i { width: 8px; height: 8px; border-radius: 50%; background: var(--agua-700); display: inline-block; }
+      .campo { margin-top: 16px; }
+      .campo label { display: block; font-size: 16px; font-weight: 600; color: var(--tinta-2); margin-bottom: 6px; }
+      .campo .valor { height: 52px; border: 1.5px solid var(--borda); border-radius: 10px; background: #fff; display: flex; align-items: center; padding: 0 16px; font-size: 20px; gap: 2px; }
+      .opcoes { display: flex; flex-wrap: wrap; gap: 8px; }
+      .opcao { display: inline-flex; align-items: center; gap: 9px; height: 46px; padding: 0 16px; border: 1.5px solid var(--borda); border-radius: 999px; background: #fff; font-size: 18px; font-weight: 600; white-space: nowrap; }
+      .opcao .bolha { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #8a97ab; display: grid; place-items: center; }
+      .cursor-texto { width: 2px; height: 24px; background: var(--agua-700); display: inline-block; }
+      .av { border-radius: 50%; object-fit: cover; }
+      .ic { width: 1em; height: 1em; flex: none; }
+      .rotulo { font-size: 15px; font-weight: 650; letter-spacing: 0.06em; text-transform: uppercase; color: var(--tinta-2); }
+
+      /* toque */
+      .toque { position: absolute; left: 0; top: 0; width: 60px; height: 60px; margin: -30px 0 0 -30px; z-index: 50; opacity: 0; pointer-events: none; }
+      .toque .p { position: absolute; inset: 0; border-radius: 50%; background: rgb(0 116 121 / 0.22); border: 3px solid var(--agua-700); box-shadow: 0 0 0 3px rgb(255 255 255 / 0.9), 0 8px 20px rgb(10 29 59 / 0.2); }
+      .toque .o { position: absolute; inset: 0; border-radius: 50%; border: 3px solid var(--agua-700); opacity: 0; }
+
+      /* aviso que desce */
+      .aviso { position: absolute; display: flex; gap: 16px; align-items: center; background: #fff; color: var(--tinta); border: 1px solid var(--filete); border-radius: 16px; padding: 16px 20px; box-shadow: 0 20px 44px rgb(10 29 59 / 0.16); font-size: 18px; line-height: 1.3; }
+      .aviso b { display: block; font-size: 20px; font-weight: 650; }
+      .aviso img { width: 50px; height: 50px; }
+      .aviso .marcador { width: 50px; height: 50px; border-radius: 50%; background: var(--agua-fundo); color: var(--agua-700); display: grid; place-items: center; font-size: 26px; flex: none; }
+
+      /* trilho das sete etapas */
+      .trilho { position: absolute; display: flex; gap: 12px; opacity: 0; }
+      .f169 .trilho { left: 50%; bottom: 44px; translate: -50% 0; }
+      .f916 .trilho { left: 50%; bottom: 80px; translate: -50% 0; gap: 16px; }
+      .trilho span { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; font-weight: 650; font-size: 17px; border: 1.5px solid var(--borda); color: #8a97ab; background: var(--palco); }
+      .f916 .trilho span { width: 50px; height: 50px; font-size: 22px; }
+      .trilho span.feito { background: var(--gelo); border-color: var(--gelo); color: var(--tinta-2); }
+      .trilho span.agora { background: var(--agua-700); border-color: var(--agua-700); color: #fff; }
+
+      /* abertura e assinatura */
+      .gabarito { position: absolute; left: 50%; top: 50%; display: flex; gap: 34px; translate: -50% -50%; }
+      .gab-b { position: relative; width: 112px; height: 112px; border-radius: 50%; border: 3px solid var(--marinho); display: grid; place-items: center; font-family: "Montserrat", sans-serif; font-size: 40px; font-weight: 600; color: var(--marinho); }
+      .gab-b svg { position: absolute; inset: -3px; width: 112px; height: 112px; }
+      .assinatura { position: absolute; left: 0; right: 0; top: 50%; translate: 0 -50%; display: flex; flex-direction: column; align-items: center; text-align: center; }
+      .assinatura .simb { width: 150px; height: 146px; }
+      .assinatura .nome { font-family: "Montserrat", sans-serif; font-size: 108px; font-weight: 500; letter-spacing: -0.03em; margin-top: 34px; line-height: 1; color: var(--marinho); }
+      .f916 .assinatura .nome { font-size: 96px; }
+      .assinatura .nome b { position: relative; font-weight: 700; display: inline-block; }
+      .assinatura .nome .sub { position: absolute; left: 0; right: 0; bottom: -10px; height: 12px; background: var(--amarelo); border-radius: 6px; transform-origin: 0 50%; z-index: -1; }
+      .assinatura .onde { font-size: 34px; color: var(--tinta-2); margin-top: 34px; font-weight: 500; }
+      .ressalva { position: absolute; left: 0; right: 0; bottom: 56px; text-align: center; font-size: 22px; color: #6b788d; }
+      .f916 .ressalva { bottom: 90px; font-size: 28px; }
+
+      /* fluxo */
+      .fluxo-legenda { position: absolute; text-align: center; left: 50%; translate: -50% 0; }
+      .f169 .fluxo-legenda { top: 170px; width: 1500px; }
+      .f916 .fluxo-legenda { top: 190px; width: 920px; text-align: left; left: 80px; translate: 0 0; }
+      .f169 .fluxo-legenda .olho { justify-content: center; }
+      .fluxo-legenda .titulo { font-size: 72px; }
+      .no { position: absolute; width: 0; height: 0; }
+      .no .c { position: absolute; width: 96px; height: 96px; left: -48px; top: -48px; border-radius: 50%; background: #fff; border: 3px solid var(--agua-700); display: grid; place-items: center; font-family: "Montserrat", sans-serif; font-size: 38px; font-weight: 650; color: var(--marinho); }
+      .no .r { position: absolute; font-size: 30px; font-weight: 650; white-space: nowrap; color: var(--marinho); }
+      .f169 .no .r { top: 70px; left: 0; translate: -50% 0; }
+      .f916 .no .r { left: 80px; top: -21px; font-size: 38px; }
+      .no img { position: absolute; width: 54px; height: 54px; border-radius: 50%; border: 3px solid var(--palco); left: 20px; top: -82px; }
+      .f916 .no img { left: -134px; top: -27px; }
+      #bolsas .opcao { padding: 0 12px; font-size: 17px; }
+    </style>
+  </head>
+  <body>
+    <div id="palco"></div>
+
+    <script>
+      /* ---------- formato ---------- */
+      const busca = new URLSearchParams(location.search);
+      const FORMATO = busca.get("f") === "916" ? "916" : "169";
+      const L = FORMATO === "169" ? 1920 : 1080;
+      const A = FORMATO === "169" ? 1080 : 1920;
+      const palco = document.getElementById("palco");
+      palco.className = "f" + FORMATO;
+
+      /* ---------- tempo e curvas ---------- */
+      const cl = (x) => Math.max(0, Math.min(1, x));
+      const pr = (t, a, b) => cl((t - a) / (b - a));
+      const lerp = (a, b, x) => a + (b - a) * x;
+      const eo = (x) => 1 - Math.pow(1 - x, 3);
+      const ei = (x) => x * x * x;
+      const eio = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+      const ex = (x) => (x >= 1 ? 1 : 1 - Math.pow(2, -10 * x));
+      const eb = (x) => { const c1 = 1.2, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); };
+      const k = (t, a, b, e = eo) => e(pr(t, a, b));
+
+      function pos(el, { x = 0, y = 0, s = 1, r = 0, o } = {}) {
+        el.style.transform = `translate(${x.toFixed(2)}px, ${y.toFixed(2)}px) scale(${s.toFixed(4)}) rotate(${r.toFixed(2)}deg)`;
+        if (o !== undefined) el.style.opacity = cl(o).toFixed(3);
+      }
+      const $ = (sel, raiz = document) => raiz.querySelector(sel);
+      const $$ = (sel, raiz = document) => [...raiz.querySelectorAll(sel)];
+      const reais = (v) => "R$ " + Math.round(v).toLocaleString("pt-BR");
+
+      /* ---------- recursos ---------- */
+      const RAIZ = "../public";
+      const SIMB = `${RAIZ}/brand/simbolo.svg`;
+      const SIMB_BRANCO = `${RAIZ}/brand/simbolo-branco.svg`;
+      const foto = (n) => `${RAIZ}/plataforma/pessoas/${n}.jpg`;
+      const simb = (cls = "") => `<img class="simb ${cls}" src="${SIMB_BRANCO}" alt="" />`;
+
+      const ICONES = {
+        ok: '<path d="M5 12l5 5L20 7"/>',
+        relogio: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+        camera: '<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',
+        arquivo: '<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/>',
+        sino: '<path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21h4"/>',
+        pessoas: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 3.5 6"/>',
+        funil: '<path d="M3 4h18l-7 9v6l-4 2v-8z"/>',
+        calendario: '<rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',
+      };
+      const ic = (n, est = "") => `<svg class="ic" style="${est}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONES[n]}</svg>`;
+      const barra = (pessoa, nome, papel) =>
+        `<div class="jan-barra">${simb()}<span class="marca">Plataforma <b>Córtex</b></span><span class="jan-pessoa"><img src="${foto(pessoa)}" alt=""/><span>${nome}<small>${papel}</small></span></span></div>`;
+      const barraCel = (pessoa) => `<div class="cel-barra">${simb()}<img class="av" src="${foto(pessoa)}" alt=""/></div>`;
+      const opcao = (texto, cls = "") => `<span class="opcao ${cls}"><span class="bolha"><svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><path d="M5 5l10 10M15 5L5 15"/></svg></span>${texto}</span>`;
+
+      /* legenda com palavras que sobem uma a uma */
+      const legenda = (olho, titulo, cls = "legenda") =>
+        `<div class="${cls}"><p class="olho">${olho}</p><h2 class="titulo">${titulo
+          .split(" ")
+          .map((p) => `<span class="m"><span>${p}</span></span>`)
+          .join(" ")}</h2></div>`;
+
+      function animarLegenda(raiz, lt, dur, inicio = 0.25) {
+        const olho = $(".olho", raiz);
+        pos(olho, { x: lerp(-24, 0, k(lt, inicio, inicio + 0.6)), o: k(lt, inicio, inicio + 0.5) });
+        $$(".m > span", raiz).forEach((s, i) => {
+          const a = inicio + 0.2 + i * 0.05;
+          pos(s, { y: lerp(110, 0, k(lt, a, a + 0.7, ex)) });
+        });
+        const saida = k(lt, dur - 0.5, dur - 0.1, ei);
+        raiz.querySelector(".legenda, .fluxo-legenda").style.opacity = 1 - saida;
+      }
+
+      /* toque na tela: chaves [t, x, y] e cliques em t */
+      function toque(el, lt, chaves, cliques = []) {
+        if (lt < chaves[0][0] - 0.3 || lt > chaves[chaves.length - 1][0] + 0.6) { el.style.opacity = 0; return; }
+        let x = chaves[0][1], y = chaves[0][2];
+        for (let i = 1; i < chaves.length; i++) {
+          const [t0, x0, y0] = chaves[i - 1], [t1, x1, y1] = chaves[i];
+          if (lt >= t0) { const e = eio(pr(lt, t0, t1)); x = lerp(x0, x1, e); y = lerp(y0, y1, e); }
+        }
+        let s = 1, onda = 0, ondaO = 0;
+        for (const c of cliques) {
+          const d = lt - c;
+          if (d > -0.12 && d < 0.3) s = Math.min(s, d < 0 ? lerp(1, 0.8, (d + 0.12) / 0.12) : lerp(0.8, 1, eo(d / 0.3)));
+          if (d >= 0 && d < 0.5) { onda = lerp(1, 2.2, eo(d / 0.5)); ondaO = 1 - d / 0.5; }
+        }
+        const o = Math.min(k(lt, chaves[0][0] - 0.3, chaves[0][0]), 1 - k(lt, chaves[chaves.length - 1][0] + 0.2, chaves[chaves.length - 1][0] + 0.6));
+        el.style.opacity = o;
+        el.style.transform = `translate(${x}px, ${y}px)`;
+        $(".p", el).style.transform = `scale(${s})`;
+        const anel = $(".o", el);
+        anel.style.transform = `scale(${onda})`;
+        anel.style.opacity = ondaO;
+      }
+      const TOQUE = `<div class="toque"><div class="o"></div><div class="p"></div></div>`;
+
+      const digitar = (el, texto, lt, a, b, cursor = true) => {
+        const n = Math.round(texto.length * pr(lt, a, b));
+        const piscando = cursor && lt > a - 0.4 && lt < b + 0.3;
+        el.innerHTML = texto.slice(0, n) + (piscando ? '<span class="cursor-texto"></span>' : "");
+      };
+
+      /* opção marcada: borda e bolha verde-água com o X da marca */
+      function marcar(el, sim) {
+        el.style.borderColor = sim ? "#007479" : "#c5d0dd";
+        el.style.background = sim ? "#e2f2f2" : "#fff";
+        const b = $(".bolha", el);
+        b.style.background = sim ? "#007479" : "transparent";
+        b.style.borderColor = sim ? "#007479" : "#8a97ab";
+      }
+
+      /* ---------- roteiro ---------- */
+      const CENAS = [
+        { id: "abertura", dur: 4.6 },
+        { id: "acesso", dur: 6.2 },
+        { id: "captacao", dur: 6.8, etapa: 2 },
+        { id: "bolsas", dur: 6.6, etapa: 2 },
+        { id: "matricula", dur: 6.6, etapa: 3 },
+        { id: "responsavel", dur: 6.4, etapa: 4 },
+        { id: "redacao", dur: 6.6, etapa: 5 },
+        { id: "plantao", dur: 6.4, etapa: 5 },
+        { id: "correcao", dur: 6.6, etapa: 6 },
+        { id: "gestao", dur: 6.4, etapa: 7 },
+        { id: "fluxo", dur: 6.8 },
+        { id: "fim", dur: 5.4 },
+      ];
+      let acc = 0;
+      for (const c of CENAS) { c.ini = acc; acc += c.dur; c.fim = acc; }
+      const DURACAO = acc;
+
+      /* ---------- montagem ---------- */
+      const html = [];
+      html.push(`<div class="fundo"></div>`);
+
+      const assinatura = `<div class="assinatura"><img class="simb" src="${SIMB}" alt="" /><p class="nome"><span class="w">Plataforma</span> <b class="w">Córtex<span class="sub"></span></b></p><p class="onde">Colégio Córtex · Setor Bueno, Goiânia</p></div>`;
+
+      /* abertura: o gabarito marca o X e vira o símbolo */
+      const xis = `<svg viewBox="0 0 112 112"><circle class="gab-fundo" cx="56" cy="56" r="56" fill="#00959a"/><path class="gab-x1" d="M36 36L76 76" stroke="#fff" stroke-width="9" stroke-linecap="round"/><path class="gab-x2" d="M76 36L36 76" stroke="#fff" stroke-width="9" stroke-linecap="round"/></svg>`;
+      html.push(`<section class="cena" id="abertura">
+        <div class="gabarito">${["A", "B", "C", "D", "E"].map((l, i) => `<div class="gab-b gb${i}">${l}${i === 2 ? xis : ""}</div>`).join("")}</div>
+        ${assinatura}</section>`);
+
+      /* 1. acesso */
+      html.push(`<section class="cena" id="acesso">${legenda("Acesso", "Aluno, responsável, professor e equipe entram pelo mesmo login.")}
+        <div class="caixa">
+          <div class="abs entrar cartao" style="left:210px;top:40px;width:480px;padding:40px 40px 36px;border-radius:22px;box-shadow:0 30px 70px rgb(10 29 59 / .14)">
+            <img src="${SIMB}" style="width:60px;height:58px" alt="" />
+            <p style="font-family:Montserrat;font-size:34px;font-weight:650;margin-top:16px;letter-spacing:-.01em;color:#0a1d3b">Plataforma Córtex</p>
+            <div class="campo"><label>Usuário</label><div class="valor"><span class="digita-usuario"></span></div></div>
+            <div class="campo"><label>Senha</label><div class="valor" style="letter-spacing:4px"><span class="digita-senha"></span></div></div>
+            <div class="btn b-entrar" style="width:100%;margin-top:26px">Entrar</div>
+          </div>
+          <div class="abs" style="left:0;top:650px;width:900px;display:flex;justify-content:center;flex-wrap:wrap;gap:10px">
+            ${["Aluno", "Responsável", "Professor", "Coordenação", "Secretaria"].map((p) => `<span class="pil" style="background:#fff;border:1px solid #d5dde8;color:#0a1d3b;border-radius:999px;padding:11px 20px;font-size:21px;font-weight:650;display:inline-flex;gap:10px;align-items:center"><i style="width:10px;height:10px;border-radius:50%;background:#00959a;display:inline-block"></i>${p}</span>`).join("")}
+          </div>
+          ${TOQUE}
+        </div></section>`);
+
+      /* 2. site e captação */
+      const cartaoContato = (nome, quem, selos, tarefa, av, extra = "") =>
+        `<div class="cartao kc ${extra}" style="padding:15px 17px;border-radius:12px"><p style="font-size:21px;font-weight:650;color:#0a1d3b">${nome}</p><p style="font-size:16px;color:#4a5872;margin-top:3px">${quem}</p><p style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap">${selos}</p><p style="font-size:15px;color:#4a5872;margin-top:10px;display:flex;gap:8px;align-items:center">${ic("relogio")}${tarefa}<img class="av" src="${foto(av)}" style="width:28px;height:28px;margin-left:auto" alt=""/></p></div>`;
+      const coluna = (titulo, conta, corpo, cls = "") =>
+        `<div class="${cls}" style="background:#e6ecf3;border-radius:14px;padding:14px;height:560px;overflow:hidden"><p style="display:flex;justify-content:space-between;align-items:center;font-size:18px;font-weight:650;margin-bottom:12px">${titulo}<span class="conta-${cls}" style="background:#fff;border-radius:999px;min-width:30px;height:30px;padding:0 9px;display:grid;place-items:center;font-size:16px">${conta}</span></p>${corpo}</div>`;
+      html.push(`<section class="cena" id="captacao">${legenda("Site e captação", "Quem pede visita no site aparece na hora no funil.")}
+        <div class="caixa">
+          <div class="jan kanban" style="left:250px;top:20px;width:650px;height:760px">
+            ${barra("thiago", "Thiago Teixeira", "Relacionamento")}
+            <div class="jan-corpo">
+              <p class="jan-h">Captação 2027</p><p class="jan-sub">Funil de contatos</p>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px">
+                ${coluna("Novo contato", "2", `<div style="position:relative">
+                    <div class="novo" style="position:absolute;left:0;right:0;top:0">${cartaoContato("Família Ribeiro", "Bruno, 3ª série", '<span class="selo">Site</span><span class="selo"><i></i>Visita</span>', "Ligar hoje, 17:00", "thiago")}</div>
+                    <div class="velhos" style="display:grid;gap:12px">
+                      ${cartaoContato("Família Carvalho", "Pedro, 1ª série", '<span class="selo">Site</span>', "Retornar amanhã", "thiago")}
+                      ${cartaoContato("Lucas Queiroz", "Extensivo", '<span class="selo">Instagram</span>', "Responder hoje", "tatiane")}
+                    </div></div>`, "c1")}
+                ${coluna("Visita ou prova marcada", "2", `<div style="display:grid;gap:12px">
+                    ${cartaoContato("Família Teles", "Vicente, 1ª série", '<span class="selo"><i></i>Prova 17 out</span>', "Confirmar presença", "thiago")}
+                    ${cartaoContato("Clara Arantes", "Extensivo", '<span class="selo"><i></i>Visita 8 out</span>', "Visita às 15:00", "tatiane")}
+                  </div>`, "c2")}
+              </div>
+            </div>
+          </div>
+          <div class="abs form cartao" style="left:0;top:130px;width:420px;padding:28px;border-radius:20px;box-shadow:0 30px 70px rgb(10 29 59 / .18)">
+            <p class="rotulo">colegiocortex.com.br</p>
+            <p style="font-family:Montserrat;font-size:28px;font-weight:650;color:#0a1d3b;margin-top:8px">Agende uma visita</p>
+            <div class="campo"><label>Seu nome</label><div class="valor"><span class="d-nome"></span></div></div>
+            <div class="campo"><label>Série em 2027</label><div class="valor"><span class="d-serie">Escolha</span></div></div>
+            <div class="campo"><label>Você quer</label><div class="opcoes">${opcao("Visita", "o-visita")}${opcao("Prova de Bolsas")}</div></div>
+            <div class="btn b-visita" style="width:100%;margin-top:22px">Pedir visita</div>
+          </div>
+          <div class="aviso toast" style="left:300px;top:-30px;width:520px"><span class="marcador">${ic("funil")}</span><span><b>Novo contato pelo site</b>Família Ribeiro, visita para a 3ª série</span></div>
+          ${TOQUE}
+        </div></section>`);
+
+      /* 3. Prova de Bolsas */
+      const passo = (titulo, quando, cls) =>
+        `<div class="passo ${cls}" style="display:flex;gap:16px;align-items:flex-start;padding:16px 0;border-bottom:1px solid #d5dde8"><span class="pk" style="width:34px;height:34px;border-radius:50%;background:#1f7a4d;color:#fff;display:grid;place-items:center;font-size:20px;flex:none">${ic("ok")}</span><span><b style="display:block;font-size:20px;font-weight:650">${titulo}</b><span style="font-size:17px;color:#4a5872">${quando}</span></span></div>`;
+      html.push(`<section class="cena" id="bolsas">${legenda("Prova de Bolsas", "Visita, prova, bolsa e proposta ficam no mesmo cartão.")}
+        <div class="caixa">
+          <div class="jan" style="left:0;top:160px;width:900px;height:480px">
+            ${barra("thiago", "Thiago Teixeira", "Relacionamento")}
+            <div class="jan-corpo">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start">
+                <div><p class="jan-h">Família Ribeiro</p><p class="jan-sub">Bruno, 3ª série · pediu visita pelo site</p></div>
+                <span class="selo estagio" style="font-size:17px;padding:7px 15px"><i></i><span class="estagio-t">Visitou ou fez a prova</span></span>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1.08fr;gap:26px;margin-top:24px">
+                <div class="cartao" style="padding:6px 22px">
+                  ${passo("Pedido pelo site", "6 out, 10:42", "p0")}
+                  ${passo("Visita ao Córtex", "8 out, 15:00, com Tatiane", "p1")}
+                  ${passo("Prova de Bolsas", "17 out, 8:00", "p2")}
+                  <div class="p3" style="padding:16px 0;font-size:17px;color:#4a5872;display:flex;gap:10px;align-items:center">${ic("calendario", "font-size:22px;color:#007479")}Próximo passo: matrícula</div>
+                </div>
+                <div class="cartao" style="padding:22px">
+                  <p class="rotulo">Bolsa da prova</p>
+                  <div class="opcoes" style="margin-top:12px;flex-wrap:nowrap;gap:6px">${["20%", "30%", "40%", "50%"].map((p, i) => opcao(p, "pb" + i)).join("")}</div>
+                  <p class="rotulo" style="margin-top:26px">Mensalidade em 2027</p>
+                  <p style="margin-top:8px;display:flex;align-items:baseline;gap:14px"><span class="m-de" style="font-size:22px;color:#4a5872;position:relative">R$ 2.400<span class="risco" style="position:absolute;left:-2px;right:-2px;top:52%;height:2px;background:#4a5872;transform-origin:0 50%"></span></span><span class="m-por" style="font-family:Montserrat;font-size:42px;font-weight:650;color:#0a1d3b">R$ 2.400</span><span style="font-size:18px;color:#4a5872">/mês</span></p>
+                  <div class="btn b-proposta" style="width:100%;margin-top:26px">Enviar proposta</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          ${TOQUE}
+        </div></section>`);
+
+      /* 4. matrícula de quem responde por si */
+      html.push(`<section class="cena" id="matricula">${legenda("Matrícula", "Aluno maior de idade responde pela própria matrícula, numa conta só.")}
+        <div class="caixa">
+          <div class="jan" style="left:0;top:20px;width:600px;height:600px">
+            ${barra("tatiane", "Tatiane Reis", "Secretaria")}
+            <div class="jan-corpo">
+              <p class="jan-h">Matricular Larissa Fontes</p><p class="jan-sub">Extensivo, 19 anos</p>
+              <div class="campo"><label>Turma</label><div class="valor">Extensivo A · manhã</div></div>
+              <div class="campo"><label>Quem responde pela matrícula</label><div class="opcoes">${opcao("Mãe ou pai", "r0")}${opcao("Outro responsável", "r1")}${opcao("Próprio aluno", "r2")}</div></div>
+              <div class="btn b-matricular" style="width:100%;margin-top:30px">Matricular</div>
+            </div>
+          </div>
+          <svg class="abs" width="900" height="800" style="left:0;top:0;overflow:visible" fill="none"><path class="liga" d="M300 560 C300 640 420 660 470 660" stroke="#00959a" stroke-width="3" stroke-dasharray="8 9"/></svg>
+          <div class="abs conta cartao" style="left:470px;top:560px;width:420px;padding:22px;border-radius:18px;box-shadow:0 24px 50px rgb(10 29 59 / .16)">
+            <div style="display:flex;gap:16px;align-items:center"><img class="av" src="${foto("larissa")}" style="width:64px;height:64px" alt=""/><div><p style="font-size:22px;font-weight:650">Larissa Fontes</p><p style="font-size:16px;color:#4a5872;margin-top:2px">Uma conta, dois portais</p></div></div>
+            <div style="display:flex;gap:10px;margin-top:16px"><span class="selo pp0" style="font-size:18px;padding:7px 16px"><i></i>Aluno</span><span class="selo pp1" style="font-size:18px;padding:7px 16px"><i></i>Responsável</span></div>
+          </div>
+          ${TOQUE}
+        </div></section>`);
+
+      /* 5. responsável */
+      html.push(`<section class="cena" id="responsavel">${legenda("Responsável", "O responsável recebe o aviso e confirma a ciência pelo celular.")}
+        <div class="caixa">
+          <div class="cel" style="left:80px;top:10px"><div class="cel-tela">
+            ${barraCel("simone")}
+            <div class="cel-corpo">
+              <p class="cel-h">Olá, Simone</p><p class="cel-sub">Isabela, 1ª série A</p>
+              <div class="cartao" style="margin-top:20px;padding:18px">
+                <p style="display:flex;gap:8px;align-items:center;font-size:15px;font-weight:650;color:#007479">${ic("sino")}AVISO DA COORDENAÇÃO</p>
+                <p style="font-size:22px;font-weight:650;margin-top:10px">Simulado Enem 4</p>
+                <p style="font-size:17px;color:#4a5872;margin-top:4px;line-height:1.35">Sábado, 18 out, 7:30. Chegar 15 minutos antes.</p>
+                <div class="btn b-ciencia" style="width:100%;margin-top:16px;height:52px;font-size:19px">Confirmar ciência</div>
+              </div>
+              <div class="cartao" style="margin-top:14px;padding:16px 18px;display:flex;justify-content:space-between;align-items:center"><span><b style="display:block;font-size:18px">Simulado Enem 3</b><span style="font-size:15px;color:#4a5872">Isabela</span></span><span style="font-family:Montserrat;font-size:28px;font-weight:650;color:#0a1d3b">648</span></div>
+              <div class="cartao" style="margin-top:12px;padding:16px 18px;display:flex;justify-content:space-between;align-items:center"><span><b style="display:block;font-size:18px">Redação 6</b><span style="font-size:15px;color:#4a5872">corrigida</span></span><span style="font-family:Montserrat;font-size:28px;font-weight:650;color:#0a1d3b">760</span></div>
+            </div>
+          </div></div>
+          <div class="abs na-coord cartao" style="left:520px;top:250px;width:370px;padding:22px;border-radius:18px;box-shadow:0 24px 50px rgb(10 29 59 / .14)">
+            <p class="rotulo">Na coordenação</p>
+            <p style="font-size:20px;font-weight:650;margin-top:10px">Ciência do Simulado Enem 4</p>
+            <div style="height:12px;border-radius:6px;background:#e6ecf3;margin-top:16px;overflow:hidden"><div class="barra-ciencia" style="height:100%;background:#00959a;width:0"></div></div>
+            <p style="font-size:17px;color:#4a5872;margin-top:10px"><b class="n-ciencia" style="color:#0a1d3b">142</b> de 186 famílias</p>
+          </div>
+          ${TOQUE}
+        </div></section>`);
+
+      /* 6. redação do aluno */
+      const mini = (nome) =>
+        `<div class="mini" style="display:none;align-items:center;gap:12px;background:#fff;border:1px solid #d5dde8;border-radius:12px;padding:10px 12px;margin-top:10px"><span style="width:44px;height:52px;border-radius:6px;background:#f4f1e8;border:1px solid #e2dccb;display:grid;place-items:center;color:#8a97ab">${ic("arquivo")}</span><span style="flex:1"><b style="display:block;font-size:16px">${nome}</b><span style="display:block;height:6px;border-radius:3px;background:#e6ecf3;margin-top:8px;overflow:hidden"><span class="prog" style="display:block;height:100%;width:0;background:#00959a"></span></span></span><span class="pronto" style="width:28px;height:28px;border-radius:50%;background:#1f7a4d;color:#fff;display:grid;place-items:center;font-size:16px">${ic("ok")}</span></div>`;
+      html.push(`<section class="cena" id="redacao">${legenda("Aluno", "O aluno fotografa a redação e entrega pelo celular.")}
+        <div class="caixa">
+          <div class="cel" style="left:60px;top:10px"><div class="cel-tela">
+            ${barraCel("gustavo")}
+            <div class="cel-corpo tela-a">
+              <p class="rotulo">Redação · Carolina Campos</p>
+              <p class="cel-h" style="margin-top:8px">Redação 7</p>
+              <p class="cel-sub">Tema: o acesso à leitura no Brasil. Entrega até sexta, 23:59.</p>
+              <div class="cartao" style="margin-top:18px;padding:16px;font-size:16px;color:#4a5872;line-height:1.4">Escreva à mão, na folha de redação do Córtex, e envie as fotos das páginas.</div>
+              ${mini("pagina-1.jpg")}${mini("pagina-2.jpg")}
+              <div class="btn b-foto" style="width:100%;margin-top:18px">${ic("camera")}Fotografar redação</div>
+              <div class="btn b-enviar" style="width:100%;margin-top:16px">Enviar entrega</div>
+            </div>
+            <div class="cel-corpo tela-b" style="opacity:0;text-align:center;padding-top:90px">
+              <div class="selo-ok" style="width:110px;height:110px;margin:0 auto;border-radius:50%;background:#1f7a4d;color:#fff;display:grid;place-items:center;font-size:56px">${ic("ok")}</div>
+              <p class="cel-h" style="margin-top:28px">Entrega recebida</p>
+              <p class="cel-sub">Quinta, 9 out, 21:14</p>
+              <p class="cel-sub" style="margin-top:14px">Protocolo<br/><b style="color:#0d1b33">ENT-20261009-2114</b></p>
+            </div>
+            <div class="flash" style="position:absolute;inset:0;background:#fff;opacity:0"></div>
+          </div></div>
+          <div class="aviso n1" style="left:480px;top:250px;width:410px"><img class="av" src="${foto("carolina")}" alt=""/><span><b>Carolina Campos</b>Nova redação de Gustavo, 3ª série A</span></div>
+          <div class="aviso n2" style="left:480px;top:380px;width:410px"><img class="av" src="${foto("roberto")}" alt=""/><span><b>Roberto Lemos</b>Gustavo entregou a Redação 7</span></div>
+          ${TOQUE}
+        </div></section>`);
+
+      /* 7. plantão */
+      const linhaFila = (av, nome, nota, cls) =>
+        `<div class="lf ${cls}" style="display:flex;gap:14px;align-items:center;padding:14px 18px;height:78px;border-bottom:1px solid #e6ecf3"><img class="av" src="${foto(av)}" style="width:46px;height:46px" alt=""/><span><b style="display:block;font-size:19px">${nome}</b><span style="font-size:15px;color:#4a5872">${nota}</span></span></div>`;
+      html.push(`<section class="cena" id="plantao">${legenda("Plantão", "O aluno entra na fila do plantão e vê a vez chegar.")}
+        <div class="caixa">
+          <div class="cel" style="left:60px;top:10px"><div class="cel-tela">
+            ${barraCel("gustavo")}
+            <div class="cel-corpo">
+              <p class="rotulo">Plantão · Wagner Prado</p>
+              <p class="cel-h" style="margin-top:8px">Matemática</p>
+              <p class="cel-sub">Hoje, 14:00 às 16:00, sala 4</p>
+              <div class="cartao" style="margin-top:22px;text-align:center;padding:24px 16px">
+                <p class="rotulo">Sua posição na fila</p>
+                <div style="height:150px;overflow:hidden;position:relative;margin-top:6px">
+                  ${[3, 2, 1].map((n) => `<p class="num" style="position:absolute;left:0;right:0;top:0;height:150px;line-height:150px;font-family:Montserrat;font-size:120px;font-weight:650;color:#0a1d3b">${n}</p>`).join("")}
+                </div>
+              </div>
+              <div class="vez" style="margin-top:16px;background:#e2f2f2;border:1.5px solid #007479;border-radius:14px;padding:16px;text-align:center;opacity:0"><b style="font-size:22px;color:#007479">Sua vez</b><p style="font-size:17px;color:#0d1b33;margin-top:4px">Vá para a sala 4</p></div>
+            </div>
+          </div></div>
+          <div class="abs fila cartao" style="left:480px;top:150px;width:410px;padding:0;overflow:hidden;border-radius:18px;box-shadow:0 24px 50px rgb(10 29 59 / .14)">
+            <p style="padding:18px;font-size:20px;font-weight:650;border-bottom:1px solid #d5dde8;display:flex;justify-content:space-between;align-items:center">Fila do plantão <span class="b-chamar btn" style="height:44px;font-size:17px;padding:0 16px">Chamar</span></p>
+            <div style="height:234px;overflow:hidden;position:relative"><div class="lista">
+              ${linhaFila("helena-duarte", "Helena Duarte", "Função do 2º grau", "lf1")}
+              ${linhaFila("caio-fernandes", "Caio Fernandes", "Geometria espacial", "lf2")}
+              ${linhaFila("gustavo", "Gustavo Lemos", "Probabilidade", "lf3")}
+            </div></div>
+          </div>
+          ${TOQUE}
+        </div></section>`);
+
+      /* 8. correção por competência */
+      const COMP = [["C1", "Norma padrão", 160], ["C2", "Proposta e repertório", 200], ["C3", "Argumentos", 160], ["C4", "Coesão", 160], ["C5", "Proposta de intervenção", 120]];
+      const rabisco = (y, w) => `<path d="M30 ${y} ${Array.from({ length: 12 }, (_, i) => `q ${w / 24} ${i % 2 ? 5 : -5} ${w / 12} 0`).join(" ")}" stroke="#2a3a60" stroke-width="2" fill="none" opacity=".55"/>`;
+      html.push(`<section class="cena" id="correcao">${legenda("Professor", "A professora corrige a redação nas cinco competências do Enem.")}
+        <div class="caixa">
+          <div class="jan" style="left:0;top:20px;width:900px;height:760px">
+            ${barra("carolina", "Carolina Campos", "Redação")}
+            <div class="jan-corpo">
+              <p class="jan-h">Redação 7 · Gustavo Lemos</p><p class="jan-sub">3ª série A · entregue quinta, 9 out, 21:14</p>
+              <div style="display:grid;grid-template-columns:300px 1fr;gap:26px;margin-top:22px">
+                <div style="height:560px;border-radius:10px;background:#fbfaf5;border:1px solid #e2dccb;position:relative;overflow:hidden">
+                  <svg width="300" height="560">${Array.from({ length: 19 }, (_, i) => `<line x1="20" x2="280" y1="${40 + i * 27}" y2="${40 + i * 27}" stroke="#d9e2ee"/>`).join("")}${Array.from({ length: 17 }, (_, i) => rabisco(36 + i * 27, i === 16 ? 130 : 240)).join("")}</svg>
+                </div>
+                <div>
+                  ${COMP.map(([c, n], i) => `<div class="cp cp${i}" style="display:flex;align-items:center;gap:14px;padding:11px 0;border-bottom:1px solid #d5dde8"><b style="width:44px;font-size:20px">${c}</b><span style="flex:1;font-size:18px;color:#4a5872">${n}</span><span class="cv" style="width:96px;height:48px;border:1.5px solid #c5d0dd;border-radius:10px;background:#fff;display:grid;place-items:center;font-size:21px;font-weight:650">–</span></div>`).join("")}
+                  <p style="margin-top:20px;display:flex;align-items:baseline;gap:10px"><span class="total" style="font-family:Montserrat;font-size:56px;font-weight:650;color:#0a1d3b">0</span><span style="font-size:20px;color:#4a5872">de 1000</span></p>
+                  <div class="btn b-lancar" style="width:100%;margin-top:14px">Lançar nota</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="aviso n-nota" style="left:420px;top:-40px;width:460px"><img class="av" src="${foto("gustavo")}" alt=""/><span><b>Gustavo recebeu a correção</b>Redação 7: 800, com comentário por competência</span></div>
+          ${TOQUE}
+        </div></section>`);
+
+      /* 9. gestão */
+      const kpi = (n, rotulo, cls) => `<div class="cartao kpi ${cls}" style="padding:16px 18px"><p class="kn" data-n="${n}" style="font-family:Montserrat;font-size:44px;font-weight:650;color:#0a1d3b;line-height:1">0</p><p style="font-size:16px;color:#4a5872;margin-top:8px;line-height:1.3">${rotulo}</p></div>`;
+      const MEDIAS = [["1ª série A", 612], ["2ª série A", 648], ["3ª série A", 701], ["3ª série B", 684], ["Extensivo A", 726]];
+      html.push(`<section class="cena" id="gestao">${legenda("Gestão", "A coordenação vê captação, redações e simulados de cada turma.")}
+        <div class="caixa">
+          <div class="jan" style="left:0;top:20px;width:900px;height:760px">
+            ${barra("adriana", "Adriana Alves", "Coordenação")}
+            <div class="jan-corpo">
+              <p class="jan-h">Painel da coordenação</p><p class="jan-sub">Semana de 6 a 10 de outubro</p>
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:20px">
+                ${kpi(14, "contatos no funil", "k0")}${kpi(6, "matrículas para 2027", "k1")}${kpi(23, "redações para corrigir", "k2")}${kpi(11, "alunos no plantão hoje", "k3")}
+              </div>
+              <div class="cartao" style="margin-top:18px;padding:20px 22px">
+                <p style="font-size:20px;font-weight:650">Simulado Enem 3 · média por turma</p>
+                ${MEDIAS.map(([t, m], i) => `<div style="display:flex;align-items:center;gap:16px;margin-top:16px"><span style="width:130px;font-size:17px;color:#4a5872">${t}</span><span style="flex:1;height:26px;background:#eef3f8;border-radius:6px;overflow:hidden"><span class="bm bm${i}" data-n="${m}" style="display:block;height:100%;width:0;background:${i === 4 ? "#007479" : "#4fcfd0"};border-radius:6px"></span></span><b class="bmv" data-n="${m}" style="width:56px;text-align:right;font-size:19px">0</b></div>`).join("")}
+              </div>
+            </div>
+          </div>
+        </div></section>`);
+
+      /* 10. o fluxo */
+      const etapas = [
+        ["Site", "mulher-3"],
+        ["Captação", "thiago"],
+        ["Matrícula", "tatiane"],
+        ["Responsável", "simone"],
+        ["Aluno", "gustavo"],
+        ["Professor", "carolina"],
+        ["Gestão", "adriana"],
+      ];
+      const NOS = etapas.map((_, i) => (FORMATO === "169" ? [240 + i * 240, 640] : [180, 760 + i * 160]));
+      html.push(`<section class="cena" id="fluxo">${legenda("Plataforma Córtex", "Do pedido de visita à sala de aula, numa plataforma só.", "fluxo-legenda")}
+        <svg class="abs" width="${L}" height="${A}" style="left:0;top:0" fill="none" stroke-linecap="round">
+          <path class="linha" d="M${NOS.map((p) => p.join(" ")).join(" L")}" stroke="#00959a" stroke-width="3"/>
+        </svg>
+        ${etapas.map(([n, a], i) => `<div class="no" style="left:${NOS[i][0]}px;top:${NOS[i][1]}px"><img class="av" src="${foto(a)}" alt=""/><div class="c">${i + 1}</div><p class="r">${n}</p></div>`).join("")}
+      </section>`);
+
+      /* 11. assinatura */
+      html.push(`<section class="cena" id="fim">${assinatura}<p class="ressalva">Pessoas e dados fictícios.</p></section>`);
+
+      html.push(`<div class="trilho">${[1, 2, 3, 4, 5, 6, 7].map((n) => `<span>${n}</span>`).join("")}</div>`);
+      palco.innerHTML = html.join("");
+
+      /* posições medidas uma vez, em unidades da caixa */
+      function centro(cena, sel) {
+        const caixa = $(`#${cena} .caixa`);
+        const el = $(sel, caixa);
+        let x = 0, y = 0, n = el;
+        while (n && n !== caixa) { x += n.offsetLeft; y += n.offsetTop; n = n.offsetParent; }
+        return [x + el.offsetWidth / 2, y + el.offsetHeight / 2];
+      }
+
+      /* ---------- cenas ---------- */
+      const C = Object.fromEntries(CENAS.map((c) => [c.id, $("#" + c.id)]));
+      const toques = Object.fromEntries(CENAS.map((c) => [c.id, $(`#${c.id} .toque`)]));
+      let P = null;
+      function medir() {
+        P = {
+          entrar: centro("acesso", ".b-entrar"),
+          serie: centro("captacao", ".d-serie"),
+          visita: centro("captacao", ".b-visita"),
+          bolsa: centro("bolsas", ".pb2"),
+          proposta: centro("bolsas", ".b-proposta"),
+          proprio: centro("matricula", ".r2"),
+          matricular: centro("matricula", ".b-matricular"),
+          ciencia: centro("responsavel", ".b-ciencia"),
+          foto: centro("redacao", ".b-foto"),
+          enviar: (() => {
+            // na hora do envio o botão da foto já saiu e as duas páginas entraram
+            const r = $("#redacao");
+            $(".b-foto", r).style.display = "none";
+            $$(".mini", r).forEach((m) => (m.style.display = "flex"));
+            const c = centro("redacao", ".b-enviar");
+            $(".b-foto", r).style.display = "";
+            $$(".mini", r).forEach((m) => (m.style.display = "none"));
+            return c;
+          })(),
+          chamar: centro("plantao", ".b-chamar"),
+          lancar: centro("correcao", ".b-lancar"),
+        };
+      }
+
+      function entradaCaixa(raiz, lt, dur) {
+        const caixa = $(".caixa", raiz);
+        if (!caixa) return;
+        const e = k(lt, 0.1, 1.0, ex);
+        const s = k(lt, dur - 0.5, dur - 0.05, ei);
+        pos(caixa, { y: lerp(50, 0, e) + lerp(0, -30, s), o: Math.min(k(lt, 0.1, 0.55), 1 - s) });
+      }
+
+      function animarAssinatura(r, lt, a) {
+        pos($(".assinatura .simb", r), { s: lerp(0.7, 1, k(lt, a, a + 0.8, eb)), o: k(lt, a, a + 0.4) });
+        $$(".nome .w", r).forEach((w, i) => pos(w, { y: lerp(40, 0, k(lt, a + 0.35 + i * 0.14, a + 1.0 + i * 0.14, ex)), o: k(lt, a + 0.35 + i * 0.14, a + 0.7 + i * 0.14) }));
+        $(".nome .sub", r).style.transform = `scaleX(${k(lt, a + 1.0, a + 1.6, eio).toFixed(3)})`;
+        pos($(".onde", r), { y: lerp(16, 0, k(lt, a + 1.1, a + 1.7)), o: k(lt, a + 1.1, a + 1.6) });
+      }
+
+      const R = {
+        abertura(lt, dur) {
+          const r = C.abertura;
+          $$(".gab-b", r).forEach((b, i) => {
+            const a = 0.2 + i * 0.09;
+            const sai = k(lt, 1.95, 2.4, ei);
+            pos(b, { y: lerp(24, 0, k(lt, a, a + 0.6, ex)) - sai * 30, o: k(lt, a, a + 0.35) * (1 - sai) });
+          });
+          const fundo = $(".gab-fundo", r);
+          fundo.style.transformOrigin = "56px 56px";
+          fundo.style.transform = `scale(${k(lt, 0.95, 1.3, eb).toFixed(3)})`;
+          [".gab-x1", ".gab-x2"].forEach((s, i) => {
+            const p = $(s, r);
+            p.style.strokeDasharray = "57";
+            p.style.strokeDashoffset = 57 * (1 - k(lt, 1.2 + i * 0.22, 1.45 + i * 0.22, eio));
+          });
+          animarAssinatura(r, lt, 2.2);
+          $(".assinatura", r).style.opacity = 1 - k(lt, dur - 0.5, dur - 0.1, ei);
+        },
+
+        acesso(lt, dur) {
+          const r = C.acesso;
+          pos($(".entrar", r), { s: lerp(0.96, 1, k(lt, 0.3, 1.0, eo)), o: k(lt, 0.3, 0.7) });
+          digitar($(".digita-usuario", r), "gustavo.lemos", lt, 1.0, 1.7);
+          digitar($(".digita-senha", r), "••••••••", lt, 1.8, 2.15, false);
+          const [bx, by] = P.entrar;
+          toque(toques.acesso, lt, [[2.2, bx + 80, by + 60], [2.55, bx, by], [2.95, bx, by]], [2.65]);
+          $$(".pil", r).forEach((p, i) => {
+            const a = 2.9 + i * 0.14;
+            pos(p, { y: lerp(26, 0, k(lt, a, a + 0.55, ex)), o: k(lt, a, a + 0.35) });
+          });
+        },
+
+        captacao(lt, dur) {
+          const r = C.captacao;
+          pos($(".kanban", r), { x: lerp(60, 0, k(lt, 0.3, 1.1, ex)), o: k(lt, 0.3, 0.7) });
+          digitar($(".d-nome", r), "Paula Ribeiro", lt, 1.0, 1.7);
+          const [sx, sy] = P.serie, [vx, vy] = P.visita;
+          const escolhida = lt > 2.05;
+          const ds = $(".d-serie", r);
+          ds.textContent = escolhida ? "3ª série" : "Escolha";
+          ds.style.color = escolhida ? "#0d1b33" : "#4a5872";
+          marcar($(".o-visita", r), lt > 0.2);
+          toque(toques.captacao, lt, [[1.6, sx + 60, sy + 40], [1.9, sx, sy], [2.15, sx, sy], [2.45, vx, vy], [2.7, vx, vy]], [1.95, 2.55]);
+          // o formulário vira o cartão no funil
+          const voo = k(lt, 2.8, 3.5, eio);
+          pos($(".form", r), { x: lerp(0, 290, voo), y: lerp(0, 60, voo), s: lerp(1, 0.7, voo), o: k(lt, 0.15, 0.5) * (1 - k(lt, 3.3, 3.55)) });
+          pos($(".velhos", r), { y: lerp(0, 196, k(lt, 3.0, 3.5, eio)) });
+          const novo = $(".novo .kc", r);
+          pos(novo, { s: lerp(0.94, 1, k(lt, 3.35, 3.8, eb)), o: k(lt, 3.3, 3.5) });
+          novo.style.boxShadow = `0 0 0 ${(3 * k(lt, 3.4, 3.7) * (1 - k(lt, 5.4, 6.0))).toFixed(2)}px #4fcfd0`;
+          $(".conta-c1", r).textContent = lt > 3.45 ? "3" : "2";
+          pos($(".toast", r), { y: lerp(-30, 0, k(lt, 3.8, 4.3, eb)), o: k(lt, 3.8, 4.05) });
+        },
+
+        bolsas(lt, dur) {
+          const r = C.bolsas;
+          ["p0", "p1", "p2"].forEach((c, i) => {
+            const a = 0.7 + i * 0.3;
+            pos($("." + c, r), { x: lerp(-20, 0, k(lt, a, a + 0.5)), o: k(lt, a, a + 0.3) });
+            pos($(`.${c} .pk`, r), { s: lerp(0.4, 1, k(lt, a + 0.15, a + 0.55, eb)) });
+          });
+          pos($(".p3", r), { o: k(lt, 1.7, 2.0) });
+          const [bx, by] = P.bolsa, [px, py] = P.proposta;
+          toque(toques.bolsas, lt, [[1.8, bx + 70, by + 60], [2.1, bx, by], [2.4, bx, by], [3.2, px, py], [3.55, px, py]], [2.2, 3.35]);
+          $$(".opcoes .opcao", $(".jan", r)).forEach((o, i) => marcar(o, i === 2 && lt > 2.25));
+          const cai = k(lt, 2.3, 2.9, eio);
+          $(".m-por", r).textContent = reais(lerp(2400, 1440, cai));
+          $(".m-por", r).style.color = cai > 0 ? "#007479" : "#0a1d3b";
+          pos($(".m-de", r), { o: k(lt, 2.3, 2.5) });
+          $(".risco", r).style.transform = `scaleX(${k(lt, 2.4, 2.8).toFixed(3)})`;
+          const enviada = lt > 3.45;
+          const b = $(".b-proposta", r);
+          b.innerHTML = enviada ? `${ic("ok")}Proposta enviada` : "Enviar proposta";
+          b.classList.toggle("ok", enviada);
+          $(".estagio-t", r).textContent = enviada ? "Proposta" : "Visitou ou fez a prova";
+          pos($(".estagio", r), { s: enviada ? lerp(1.08, 1, k(lt, 3.45, 3.9)) : 1 });
+        },
+
+        matricula(lt, dur) {
+          const r = C.matricula;
+          const [ox, oy] = P.proprio, [mx, my] = P.matricular;
+          toque(toques.matricula, lt, [[1.0, ox + 70, oy + 60], [1.35, ox, oy], [1.6, ox, oy], [2.05, mx, my], [2.4, mx, my]], [1.45, 2.15]);
+          ["r0", "r1", "r2"].forEach((c, i) => marcar($("." + c, r), i === 2 && lt > 1.5));
+          const feito = lt > 2.25;
+          const b = $(".b-matricular", r);
+          b.innerHTML = feito ? `${ic("ok")}Matriculada` : "Matricular";
+          b.classList.toggle("ok", feito);
+          const liga = $(".liga", r);
+          liga.style.opacity = k(lt, 2.4, 2.6);
+          liga.style.strokeDashoffset = (1 - k(lt, 2.4, 3.0, eio)) * 60;
+          pos($(".conta", r), { y: lerp(30, 0, k(lt, 2.7, 3.3, ex)), o: k(lt, 2.7, 3.0) });
+          ["pp0", "pp1"].forEach((c, i) => {
+            const a = 3.2 + i * 0.25;
+            pos($("." + c, r), { s: lerp(0.7, 1, k(lt, a, a + 0.5, eb)), o: k(lt, a, a + 0.25) });
+          });
+        },
+
+        responsavel(lt, dur) {
+          const r = C.responsavel;
+          const [cx, cy] = P.ciencia;
+          toque(toques.responsavel, lt, [[1.2, cx + 70, cy + 80], [1.6, cx, cy], [2.0, cx, cy]], [1.75]);
+          const feito = lt > 1.85;
+          const b = $(".b-ciencia", r);
+          b.innerHTML = feito ? `${ic("ok")}Ciência confirmada` : "Confirmar ciência";
+          b.classList.toggle("ok", feito);
+          pos($(".na-coord", r), { x: lerp(40, 0, k(lt, 0.9, 1.6, ex)), o: k(lt, 0.9, 1.3) });
+          const sobe = k(lt, 2.1, 2.7, eio);
+          $(".barra-ciencia", r).style.width = (lerp(0, 141, k(lt, 1.0, 1.8, eio)) + sobe) / 186 * 100 + "%";
+          $(".n-ciencia", r).textContent = Math.round(lerp(0, 141, k(lt, 1.0, 1.8, eio)) + sobe);
+          $(".na-coord", r).style.boxShadow = `0 24px 50px rgb(10 29 59 / .14), 0 0 0 ${(3 * k(lt, 2.1, 2.4) * (1 - k(lt, 3.6, 4.2))).toFixed(2)}px #4fcfd0`;
+        },
+
+        redacao(lt, dur) {
+          const r = C.redacao;
+          const [fx, fy] = P.foto, [sx, sy] = P.enviar;
+          toque(toques.redacao, lt, [[0.9, fx + 60, fy + 70], [1.2, fx, fy], [1.45, fx, fy], [3.25, sx, sy], [3.55, sx, sy]], [1.3, 3.35]);
+          pos($(".flash", r), { o: 0.8 * k(lt, 1.38, 1.45) * (1 - k(lt, 1.5, 1.85)) });
+          $$(".mini", r).forEach((m, i) => {
+            const a = 1.55 + i * 0.35;
+            m.style.display = lt > a ? "flex" : "none";
+            pos(m, { x: lerp(-16, 0, k(lt, a, a + 0.3)), o: k(lt, a, a + 0.25) });
+            $(".prog", m).style.width = k(lt, a + 0.1, a + 0.9, eio) * 100 + "%";
+            pos($(".pronto", m), { s: lerp(0.4, 1, k(lt, a + 0.9, a + 1.2, eb)), o: k(lt, a + 0.9, a + 1.05) });
+          });
+          $(".b-foto", r).style.display = lt > 1.55 ? "none" : "inline-flex";
+          $(".b-enviar", r).style.opacity = lt > 2.9 ? 1 : 0.45;
+          const troca = k(lt, 3.55, 3.85);
+          pos($(".tela-a", r), { o: 1 - troca, x: lerp(0, -30, troca) });
+          pos($(".tela-b", r), { o: troca, x: lerp(30, 0, troca) });
+          pos($(".selo-ok", r), { s: lerp(0.4, 1, k(lt, 3.65, 4.2, eb)) });
+          pos($(".n1", r), { x: lerp(50, 0, k(lt, 4.1, 4.7, ex)), o: k(lt, 4.1, 4.4) });
+          pos($(".n2", r), { x: lerp(50, 0, k(lt, 4.45, 5.05, ex)), o: k(lt, 4.45, 4.75) });
+        },
+
+        plantao(lt, dur) {
+          const r = C.plantao;
+          const [cx, cy] = P.chamar;
+          const cliques = [1.4, 2.7];
+          toque(toques.plantao, lt, [[1.0, cx + 50, cy + 70], [1.3, cx, cy], [3.0, cx, cy]], cliques);
+          pos($(".fila", r), { x: lerp(50, 0, k(lt, 0.4, 1.1, ex)), o: k(lt, 0.4, 0.7) });
+          // cada chamada tira a primeira linha e sobe a lista
+          const saida = cliques.map((c) => k(lt, c + 0.1, c + 0.5, eio));
+          $$(".lf", r).forEach((el, i) => {
+            const sai = i < 2 ? saida[i] : 0;
+            pos(el, { x: sai * 100, y: -(saida[0] + saida[1]) * 78, o: 1 - sai });
+          });
+          const chamado = k(lt, 3.2, 3.5);
+          $(".lf3", r).style.background = `rgb(226 242 242 / ${chamado})`;
+          $(".lf3", r).style.boxShadow = `inset 4px 0 0 rgb(0 116 121 / ${chamado})`;
+          const passo1 = k(lt, 1.6, 2.0, eio), passo2 = k(lt, 2.9, 3.3, eio);
+          $$(".num", r).forEach((n, i) => pos(n, { y: (i - passo1 - passo2) * 150 }));
+          pos($(".vez", r), { o: k(lt, 3.4, 3.7), s: lerp(0.95, 1, k(lt, 3.4, 3.9, eb)) });
+        },
+
+        correcao(lt, dur) {
+          const r = C.correcao;
+          let total = 0;
+          $$(".cp", r).forEach((c, i) => {
+            const a = 0.9 + i * 0.32;
+            const v = $(".cv", c);
+            const on = lt > a;
+            v.textContent = on ? COMP[i][2] : "–";
+            v.style.borderColor = on ? "#007479" : "#c5d0dd";
+            v.style.background = on ? "#e2f2f2" : "#fff";
+            pos(v, { s: on ? lerp(1.12, 1, k(lt, a, a + 0.3)) : 1 });
+            if (on) total += COMP[i][2];
+          });
+          const t = $(".total", r);
+          t.textContent = total;
+          const [lx, ly] = P.lancar;
+          toque(toques.correcao, lt, [[2.9, lx + 70, ly + 50], [3.25, lx, ly], [3.6, lx, ly]], [3.35]);
+          const feito = lt > 3.45;
+          const b = $(".b-lancar", r);
+          b.innerHTML = feito ? `${ic("ok")}Nota lançada` : "Lançar nota";
+          b.classList.toggle("ok", feito);
+          pos($(".n-nota", r), { y: lerp(-30, 0, k(lt, 3.9, 4.4, eb)), o: k(lt, 3.9, 4.15) });
+        },
+
+        gestao(lt, dur) {
+          const r = C.gestao;
+          $$(".kn", r).forEach((el, i) => {
+            const a = 0.8 + i * 0.15;
+            el.textContent = Math.round(+el.dataset.n * k(lt, a, a + 0.8));
+            pos(el.parentElement, { y: lerp(16, 0, k(lt, a - 0.1, a + 0.4)), o: k(lt, a - 0.1, a + 0.2) });
+          });
+          $$(".bm", r).forEach((el, i) => {
+            const p = k(lt, 1.7 + i * 0.15, 2.6 + i * 0.15, eio);
+            el.style.width = ((+el.dataset.n - 500) / 300) * 100 * p + "%";
+          });
+          $$(".bmv", r).forEach((el, i) => (el.textContent = Math.round(+el.dataset.n * k(lt, 1.7 + i * 0.15, 2.6 + i * 0.15, eio))));
+        },
+
+        fluxo(lt, dur) {
+          const r = C.fluxo;
+          const linha = $(".linha", r);
+          const L_ = linha.getTotalLength();
+          const prog = k(lt, 1.0, 3.2, eio);
+          linha.style.strokeDasharray = L_;
+          linha.style.strokeDashoffset = L_ * (1 - prog);
+          linha.style.opacity = 1 - k(lt, dur - 0.5, dur - 0.1);
+          $$(".no", r).forEach((no, i) => {
+            const a = 0.9 + (i / 6) * 2.2;
+            pos($(".c", no), { s: lerp(0.4, 1, k(lt, a, a + 0.5, eb)), o: k(lt, a, a + 0.2) });
+            pos($(".r", no), { o: k(lt, a + 0.1, a + 0.45) });
+            pos($("img", no), { s: lerp(0.5, 1, k(lt, a + 0.15, a + 0.6, eb)), o: k(lt, a + 0.15, a + 0.35) });
+            const ativo = prog * 6 >= i - 0.01;
+            $(".c", no).style.background = ativo ? "#007479" : "#fff";
+            $(".c", no).style.color = ativo ? "#fff" : "#0a1d3b";
+            no.style.opacity = 1 - k(lt, dur - 0.5, dur - 0.1);
+          });
+        },
+
+        fim(lt, dur) {
+          const r = C.fim;
+          animarAssinatura(r, lt, 0.4);
+          pos($(".ressalva", r), { o: k(lt, 2.0, 2.5) });
+        },
+      };
+
+      /* ---------- quadro ---------- */
+      function render(t) {
+        // o fundo de pontos anda devagar
+        $(".fundo").style.transform = `translate(${(-t * 3) % 34}px, ${(-t * 1.5) % 34}px)`;
+
+        for (const c of CENAS) {
+          const el = C[c.id];
+          const lt = t - c.ini;
+          const viva = lt >= -0.05 && lt <= c.dur + 0.05;
+          el.style.display = viva ? "block" : "none";
+          if (!viva) continue;
+          el.style.opacity = 1;
+          if ($(".legenda, .fluxo-legenda", el)) animarLegenda(el, lt, c.dur);
+          entradaCaixa(el, lt, c.dur);
+          R[c.id](lt, c.dur);
+        }
+
+        // trilho das etapas
+        const atual = CENAS.find((c) => t >= c.ini && t < c.fim) || CENAS[CENAS.length - 1];
+        const trilho = $(".trilho");
+        const tIni = CENAS[2].ini, tFim = CENAS[9].fim;
+        trilho.style.opacity = Math.min(k(t, tIni + 0.3, tIni + 0.8), 1 - k(t, tFim - 0.5, tFim - 0.1));
+        $$(".trilho span").forEach((s, i) => {
+          const n = i + 1;
+          const e = atual.etapa || 0;
+          s.className = n === e || (atual.id === "captacao" && n === 1) ? "agora" : n < e ? "feito" : "";
+        });
+      }
+
+      /* ---------- interface para o gravador ---------- */
+      window.VIDEO = { duracao: DURACAO, fps: 30, largura: L, altura: A, render };
+      window.PRONTO = (async () => {
+        await document.fonts.load('650 40px "Montserrat"');
+        await document.fonts.load('400 40px "Inter"');
+        await document.fonts.load('650 40px "Inter"');
+        await document.fonts.ready;
+        await Promise.all([...document.images].map((i) => (i.complete ? 0 : new Promise((r) => { i.onload = i.onerror = r; }))));
+        for (const c of CENAS) C[c.id].style.display = "block";
+        medir();
+        render(0);
+        return true;
+      })();
+
+      if (busca.has("tocar")) {
+        window.PRONTO.then(() => {
+          const t0 = performance.now() - (+busca.get("tocar") || 0) * 1000;
+          const laco = () => { render(((performance.now() - t0) / 1000) % DURACAO); requestAnimationFrame(laco); };
+          laco();
+        });
+      }
+      if (busca.has("t")) window.PRONTO.then(() => render(+busca.get("t")));
+    </script>
+  </body>
+</html>
