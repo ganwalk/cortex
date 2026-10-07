@@ -1,0 +1,52 @@
+---
+/*
+  Logotipo do Colégio Córtex: o símbolo (folha de gabarito com o X marcado) e o nome em duas linhas,
+  "Colégio" em verde-água e "Córtex" em peso 800, como no avatar do Instagram.
+  O símbolo é um vetor provisório redesenhado a partir dos PNGs; o nome usa a Montserrat do site.
+*/
+interface Props {
+  tom?: "claro" | "escuro";
+  class?: string;
+}
+const { tom = "claro", class: classe } = Astro.props;
+const simbolo = tom === "escuro" ? "/brand/simbolo-branco.svg" : "/brand/simbolo.svg";
+---
+
+<span class:list={["logo", `logo--${tom}`, classe]}>
+  <img src={simbolo} alt="" width="40" height="39" />
+  <span class="logo__nome"><span class="logo__colegio">Colégio</span><span class="logo__cortex">Córtex</span></span>
+</span>
+
+<style>
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    line-height: 1;
+  }
+  .logo img {
+    width: 2.5rem;
+    height: auto;
+  }
+  .logo__nome {
+    display: grid;
+  }
+  .logo__colegio {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--agua-700);
+    letter-spacing: 0.01em;
+  }
+  .logo__cortex {
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--marinho);
+  }
+  .logo--escuro .logo__colegio {
+    color: var(--agua-claro);
+  }
+  .logo--escuro .logo__cortex {
+    color: var(--branco);
+  }
+</style>

@@ -1,0 +1,131 @@
+---
+import { WHATSAPP, WHATSAPP_ROTULO, redes, unidade } from "../data/site";
+
+const tel = (t: string) => `tel:+55${t.replace(/\D/g, "")}`;
+---
+
+<section class="contato" id="contato" aria-labelledby="contato-titulo">
+  <div class="wrap contato__grid">
+    <div>
+      <h2 id="contato-titulo" class="titulo h2">Onde fica</h2>
+      <address class="contato__endereco">
+        {unidade.endereco}
+        <br />
+        {unidade.bairro}
+        <br />
+        CEP {unidade.cep}
+      </address>
+      <a class="botao" href={unidade.mapa} target="_blank" rel="noopener">Ver no mapa</a>
+    </div>
+
+    <dl class="contato__dados">
+      <div>
+        <dt>Telefones</dt>
+        <dd>
+          {
+            unidade.telefones.map((t) => (
+              <a href={tel(t)}>{t}</a>
+            ))
+          }
+        </dd>
+      </div>
+      <div>
+        <dt>WhatsApp</dt>
+        <dd>
+          <a href={`https://wa.me/${WHATSAPP}`} target="_blank" rel="noopener">{WHATSAPP_ROTULO}</a>
+        </dd>
+      </div>
+      <div>
+        <dt>Redes</dt>
+        <dd>
+          {
+            redes.map((r) => (
+              <a href={r.href} target="_blank" rel="noopener">
+                {r.rotulo}
+              </a>
+            ))
+          }
+        </dd>
+      </div>
+    </dl>
+  </div>
+</section>
+
+<style>
+  .contato {
+    padding-block: clamp(3.5rem, 2rem + 6vw, 7rem);
+    border-top: 1px solid var(--filete);
+  }
+
+  .contato__grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 2.5rem var(--gutter);
+    align-items: start;
+  }
+
+  .contato__grid > div:first-child {
+    grid-column: 1 / span 6;
+  }
+
+  .contato__endereco {
+    margin: 1.25rem 0 1.75rem;
+    font-style: normal;
+    font-size: var(--t-24);
+    font-weight: 650;
+    line-height: 1.35;
+    color: var(--marinho);
+  }
+
+  .contato .botao {
+    border-radius: 999px;
+    padding-inline: 1.5rem;
+  }
+
+  .contato__dados {
+    grid-column: 8 / span 5;
+    margin: 0;
+    border-top: 1px solid var(--tinta);
+  }
+
+  .contato__dados > div {
+    padding-block: 1.25rem;
+    border-bottom: 1px solid var(--filete);
+  }
+
+  .contato__dados dt {
+    font-size: var(--t-14);
+    font-weight: 650;
+    color: var(--tinta-2);
+  }
+
+  .contato__dados dd {
+    margin: 0.25rem 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.5rem;
+  }
+
+  .contato__dados a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-size: var(--t-20);
+    font-weight: 650;
+    color: var(--marinho);
+    text-decoration: none;
+  }
+
+  .contato__dados a:hover {
+    color: var(--agua-700);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  @media (max-width: 959px) {
+    .contato__grid > div:first-child,
+    .contato__dados {
+      grid-column: 1 / -1;
+    }
+  }
+</style>

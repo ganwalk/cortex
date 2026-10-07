@@ -1,0 +1,1052 @@
+---
+import "../styles/global.css";
+import "../plataforma/plataforma.css";
+import { fluxo, mudancas, reflexos } from "../data/fluxo";
+
+const foto = (id: string) => `/plataforma/pessoas/${id.replace(/^u-/, "")}.jpg`;
+const rostos = ["u-simone", "u-isabela", "u-carolina", "u-gustavo", "u-larissa", "u-renata", "u-adriana", "u-tatiane"];
+const telas = fluxo.filter((e) => e.id !== "matricula");
+---
+
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Plataforma Córtex</title>
+    <meta
+      name="description"
+      content="Do pedido de visita à sala de aula: captação, matrícula, responsável, aluno, professor e gestão do Colégio Córtex num fluxo só. Protótipo com dados fictícios."
+    />
+    <meta name="theme-color" content="#f4f6fa" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0a1220" media="(prefers-color-scheme: dark)" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="/brand/simbolo.svg" type="image/svg+xml" />
+    <meta property="og:title" content="Plataforma Córtex" />
+    <meta property="og:image" content="/plataforma/telas/crm-claro.jpg" />
+    <script is:inline>
+      try {
+        const t = localStorage.getItem("cortex-plataforma:tema");
+        if (t === "claro" || t === "escuro") document.documentElement.setAttribute("data-tema", t);
+      } catch {}
+    </script>
+  </head>
+  <body class="plataforma hub">
+    <a class="pular" href="#conteudo">Pular para o conteúdo</a>
+
+    <header class="hub-topo" data-topo>
+      <div class="hub-wrap hub-topo__barra">
+        <a class="hub-marca" href="/" aria-label="Plataforma Córtex, início">
+          <img class="tela-clara" src="/brand/simbolo.svg" alt="" width="30" height="29" />
+          <img class="tela-escura" src="/brand/simbolo-branco.svg" alt="" width="30" height="29" />
+          <span>Plataforma <strong>Córtex</strong></span>
+        </a>
+        <nav class="hub-nav" aria-label="Seções">
+          <a href="#fluxo">O fluxo</a>
+          <a href="#telas">Os módulos</a>
+          <a href="#juntos">Como se conectam</a>
+        </nav>
+        <div class="hub-topo__acoes">
+          <button class="hub-tema" type="button" data-tema-botao aria-label="Alternar tema claro e escuro">
+            <svg class="i-lua" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" /></svg>
+            <svg class="i-sol" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4V2M12 22v-2M4 12H2M22 12h-2M5.6 5.6 4.2 4.2M19.8 19.8l-1.4-1.4M5.6 18.4l-1.4 1.4M19.8 4.2l-1.4 1.4M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10z" /></svg>
+          </button>
+          <a class="btn btn--primario" href="/plataforma/">Entrar</a>
+        </div>
+      </div>
+    </header>
+
+    <main id="conteudo">
+      <!-- ---------- abertura ---------- -->
+      <section class="hub-hero">
+        <div class="hub-wrap hub-hero__grade">
+          <div class="hub-hero__texto">
+            <p class="hub-olho">Colégio Córtex · protótipo navegável</p>
+            <h1 class="hub-titulo">Do pedido de visita à sala de aula, <span>numa plataforma só.</span></h1>
+            <p class="hub-lead">
+              O site recebe o pedido de visita ou a inscrição na Prova de Bolsas, o relacionamento acompanha até a decisão
+              e a secretaria matricula. A partir daí, responsável, aluno, professor e gestão usam a mesma plataforma, com os
+              mesmos dados.
+            </p>
+            <div class="hub-hero__acoes">
+              <a class="btn btn--primario hub-btn" href="#fluxo">Percorrer o fluxo</a>
+              <a class="btn btn--secundario hub-btn" href="/site/">Começar pelo site</a>
+            </div>
+            <div class="hub-rostos">
+              <span class="hub-rostos__fotos" aria-hidden="true">
+                {rostos.map((r) => <img src={foto(r)} alt="" width="40" height="40" loading="lazy" />)}
+              </span>
+              <span>13 pessoas fictícias para testar cada papel, sem cadastro.</span>
+            </div>
+          </div>
+
+          <div class="hub-palco" aria-hidden="true">
+            <svg class="hub-palco__marca" viewBox="140 0 640 625" aria-hidden="true" focusable="false">
+              <g transform="translate(535 10) rotate(49)">
+                <rect width="345" height="300" fill="var(--agua-marca)" />
+                <path d="M-16 236 345 150V410H-16Z" fill="var(--forte)" />
+                <path d="M-55 266V463H388V249" fill="none" stroke="var(--forte)" stroke-width="15" />
+              </g>
+              <path d="M575 118 628 112 462 404 380 415ZM352 160 400 146 668 358 622 376Z" fill="var(--fundo)" />
+            </svg>
+            <figure class="hub-janela">
+              <span class="hub-janela__barra"><i></i><i></i><i></i></span>
+              <img class="tela-clara" src="/plataforma/telas/crm-claro.jpg" alt="" width="1600" height="1000" />
+              <img class="tela-escura" src="/plataforma/telas/crm-escuro.jpg" alt="" width="1600" height="1000" />
+            </figure>
+            <figure class="hub-celular">
+              <img class="tela-clara" src="/plataforma/telas/aluno-celular-claro.jpg" alt="" width="780" height="1560" />
+              <img class="tela-escura" src="/plataforma/telas/aluno-celular-escuro.jpg" alt="" width="780" height="1560" />
+            </figure>
+            <div class="hub-evento hub-evento--1">
+              <img src="/plataforma/pessoas/mulher-3.jpg" alt="" width="36" height="36" />
+              <span><strong>Pedido de visita pelo site</strong>Família Lopes · 1ª série</span>
+            </div>
+            <div class="hub-evento hub-evento--2">
+              <span class="hub-evento__ok"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7" /></svg></span>
+              <span><strong>Bolsa de 50% lançada</strong>Proposta enviada no mesmo dia</span>
+            </div>
+            <div class="hub-evento hub-evento--3">
+              <img src="/plataforma/pessoas/gustavo.jpg" alt="" width="36" height="36" />
+              <span><strong>Redação corrigida</strong>720 de 1000, por competência</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ---------- o fluxo ---------- -->
+      <section class="hub-secao" id="fluxo" aria-labelledby="fluxo-titulo">
+        <div class="hub-wrap">
+          <p class="hub-olho">O fluxo</p>
+          <h2 class="hub-h2" id="fluxo-titulo">O caminho de um aluno, em sete etapas</h2>
+          <p class="hub-sub">
+            Cada etapa abre a tela do protótipo já como a pessoa que cuida daquela parte. O resultado de uma etapa é o
+            ponto de partida da seguinte.
+          </p>
+
+          <ol class="trilho" role="list">
+            {
+              fluxo.map((e) => (
+                <li class={`trilho__etapa trilho__etapa--${e.id}`}>
+                  <a class="trilho__link" href={e.href}>
+                    <span class="trilho__marco" aria-hidden="true">{e.numero}</span>
+                    <span class="trilho__titulo">{e.titulo}</span>
+                    <span class="trilho__quem">{e.quem}</span>
+                    <span class="trilho__acontece">{e.acontece}</span>
+                    <span class="trilho__ir">
+                      {e.pessoa ? (
+                        <>
+                          <img src={foto(e.pessoa.id)} alt="" width="24" height="24" loading="lazy" />
+                          Como {e.pessoa.nome.split(" ")[0]}
+                        </>
+                      ) : (
+                        e.acao
+                      )}
+                      <span aria-hidden="true">→</span>
+                    </span>
+                  </a>
+                </li>
+              ))
+            }
+          </ol>
+          <p class="trilho__volta">
+            <svg width="40" height="20" viewBox="0 0 40 20" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M38 4v4a8 8 0 0 1-8 8H4M9 11l-5 5 5 5" /></svg>
+            Na rematrícula, o contato volta para o funil da captação, com o histórico guardado.
+          </p>
+        </div>
+      </section>
+
+      <!-- ---------- uma ação, várias telas ---------- -->
+      <section class="hub-secao hub-secao--contraste" id="juntos" aria-labelledby="juntos-titulo">
+        <div class="hub-wrap hub-juntos">
+          <div>
+            <p class="hub-olho">Como se conectam</p>
+            <h2 class="hub-h2" id="juntos-titulo">O que uma ação muda nas outras telas</h2>
+            <p class="hub-sub">
+              Todos os módulos leem o mesmo cadastro de pessoas, turmas e vínculos. Quando alguém age num módulo, os outros
+              mostram o resultado sem planilha nem repasse, e cada pessoa vê só o que o vínculo dela permite.
+            </p>
+            <a class="hub-link" href="/site/#visita">Teste: peça uma visita no site e veja o contato chegar ao funil →</a>
+          </div>
+          <ol class="reflexos" role="list">
+            {
+              reflexos.map((r) => (
+                <li>
+                  <span class="reflexos__quando">{r.quando}</span>
+                  <span class="reflexos__entao">{r.entao}</span>
+                </li>
+              ))
+            }
+          </ol>
+        </div>
+      </section>
+
+      <!-- ---------- módulos ---------- -->
+      <section class="hub-secao" id="telas" aria-labelledby="telas-titulo">
+        <div class="hub-wrap">
+          <p class="hub-olho">Os módulos</p>
+          <h2 class="hub-h2" id="telas-titulo">Um portal para cada papel</h2>
+          <p class="hub-sub">Quem tem mais de um papel, como o professor que também é pai ou a aluna que responde pela própria matrícula, troca de portal sem sair da conta.</p>
+
+          <div class="modulos">
+            {
+              telas.map((e, i) => (
+                <article class={`modulo-linha${i % 2 ? " modulo-linha--inversa" : ""}`}>
+                  <div class="modulo-linha__texto">
+                    <p class="modulo-linha__n">
+                      Etapa {e.numero} · {e.quem}
+                    </p>
+                    <h3 class="modulo-linha__titulo">{e.titulo}</h3>
+                    <p class="modulo-linha__resolve">{e.resolve}</p>
+                    <ul role="list" class="modulo-linha__itens">
+                      {e.itens.map((it) => (
+                        <li>{it}</li>
+                      ))}
+                    </ul>
+                    <a class={`btn ${i === 0 ? "btn--primario" : "btn--secundario"} hub-btn`} href={e.href}>
+                      {e.pessoa && <img class="hub-btn__foto" src={foto(e.pessoa.id)} alt="" width="24" height="24" loading="lazy" />}
+                      {e.acao}
+                    </a>
+                  </div>
+                  <figure class={`modulo-linha__tela${e.celular ? " modulo-linha__tela--com-celular" : ""}`}>
+                    <span class="hub-janela__barra" aria-hidden="true">
+                      <i />
+                      <i />
+                      <i />
+                    </span>
+                    {e.id === "site" ? (
+                      <img src="/plataforma/telas/site-claro.jpg" alt="Site do Colégio Córtex com a chamada para agendar visita" width="1600" height="1000" loading="lazy" />
+                    ) : (
+                      <>
+                        <img class="tela-clara" src={`/plataforma/telas/${e.tela}-claro.jpg`} alt={`Tela do módulo ${e.titulo}`} width="1600" height="1000" loading="lazy" />
+                        <img class="tela-escura" src={`/plataforma/telas/${e.tela}-escuro.jpg`} alt={`Tela do módulo ${e.titulo}`} width="1600" height="1000" loading="lazy" />
+                      </>
+                    )}
+                    {e.celular && (
+                      <span class="modulo-linha__celular" aria-hidden="true">
+                        <img class="tela-clara" src={`/plataforma/telas/${e.celular}-claro.jpg`} alt="" width="780" height="1560" loading="lazy" />
+                        <img class="tela-escura" src={`/plataforma/telas/${e.celular}-escuro.jpg`} alt="" width="780" height="1560" loading="lazy" />
+                      </span>
+                    )}
+                  </figure>
+                </article>
+              ))
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- ---------- antes e depois ---------- -->
+      <section class="hub-secao hub-secao--contraste" aria-labelledby="muda-titulo">
+        <div class="hub-wrap">
+          <p class="hub-olho">O que muda</p>
+          <h2 class="hub-h2" id="muda-titulo">O que muda para quem usa</h2>
+          <p class="hub-sub">Hipóteses a validar com alunos e equipe do Córtex. Vêm de uma entrevista feita em outro colégio e ainda não foram conferidas aqui.</p>
+          <ul class="mudancas" role="list">
+            {
+              mudancas.map((m) => (
+                <li>
+                  <span class="mudancas__antes">{m.antes}</span>
+                  <span class="mudancas__seta" aria-hidden="true">→</span>
+                  <span class="mudancas__depois">{m.depois}</span>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </section>
+
+      <!-- ---------- fechamento ---------- -->
+      <section class="hub-fim" aria-labelledby="fim-titulo">
+        <div class="hub-wrap hub-fim__grade">
+          <div>
+            <h2 class="hub-h2" id="fim-titulo">Teste o caminho completo</h2>
+            <p class="hub-sub">
+              Peça uma visita ou a Prova de Bolsas no site, encontre o contato no funil, matricule como secretaria e entre
+              como o responsável. Os dados são fictícios e ficam só neste navegador.
+            </p>
+          </div>
+          <div class="hub-hero__acoes">
+            <a class="btn btn--primario hub-btn" href="/site/#visita">Começar pelo site</a>
+            <a class="btn btn--secundario hub-btn" href="/plataforma/">Escolher uma pessoa</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="hub-rodape">
+      <div class="hub-wrap hub-rodape__linha">
+        <span>Plataforma Córtex · protótipo para o Colégio Córtex, Goiânia</span>
+        <span>
+          Pessoas e dados fictícios. Retratos de exemplo:
+          <a href="https://www.pexels.com/license/" rel="noopener">Pexels</a>.
+        </span>
+      </div>
+    </footer>
+
+    <script>
+      // tema: alterna claro/escuro e guarda a escolha (o mesmo da plataforma)
+      const botao = document.querySelector<HTMLButtonElement>("[data-tema-botao]")!;
+      const escuroAgora = () => {
+        const t = document.documentElement.getAttribute("data-tema");
+        return t ? t === "escuro" : matchMedia("(prefers-color-scheme: dark)").matches;
+      };
+      botao.addEventListener("click", () => {
+        const novo = escuroAgora() ? "claro" : "escuro";
+        document.documentElement.setAttribute("data-tema", novo);
+        try {
+          localStorage.setItem("cortex-plataforma:tema", novo);
+        } catch {
+          /* vale só nesta visita */
+        }
+      });
+
+      // a barra ganha fundo quando a página rola
+      const topo = document.querySelector<HTMLElement>("[data-topo]")!;
+      const marcar = () => topo.classList.toggle("hub-topo--rolou", scrollY > 8);
+      addEventListener("scroll", marcar, { passive: true });
+      marcar();
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  .hub {
+    --hub-modulo: var(--sup-3);
+    --hub-modulo-forte: var(--forte);
+    --hub-modulo-fundo: var(--sup);
+    scroll-padding-top: 80px;
+  }
+
+  .hub-wrap {
+    width: 100%;
+    max-width: 1240px;
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  /* tela clara ou escura conforme o tema */
+  .tela-escura {
+    display: none !important;
+  }
+  html[data-tema="escuro"] .tela-escura {
+    display: block !important;
+  }
+  html[data-tema="escuro"] .tela-clara {
+    display: none !important;
+  }
+  @media (prefers-color-scheme: dark) {
+    html:not([data-tema="claro"]) .tela-escura {
+      display: block !important;
+    }
+    html:not([data-tema="claro"]) .tela-clara {
+      display: none !important;
+    }
+  }
+  .i-sol {
+    display: none;
+  }
+  html[data-tema="escuro"] .i-sol {
+    display: block;
+  }
+  html[data-tema="escuro"] .i-lua {
+    display: none;
+  }
+  @media (prefers-color-scheme: dark) {
+    html:not([data-tema="claro"]) .i-sol {
+      display: block;
+    }
+    html:not([data-tema="claro"]) .i-lua {
+      display: none;
+    }
+  }
+
+  /* ---------- barra ---------- */
+
+  .hub-topo {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    transition: background-color 200ms var(--ease), box-shadow 200ms var(--ease);
+  }
+  .hub-topo--rolou {
+    background: color-mix(in srgb, var(--fundo) 88%, transparent);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 1px 0 var(--linha);
+  }
+  .hub-topo__barra {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    height: 68px;
+  }
+  .hub-marca {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    text-decoration: none;
+    font-size: var(--t-16);
+    white-space: nowrap;
+  }
+  .hub-marca strong {
+    font-weight: 800;
+  }
+  .hub-nav {
+    display: flex;
+    gap: 1.75rem;
+    font-size: var(--t-14);
+    font-weight: 600;
+  }
+  .hub-nav a {
+    color: var(--texto-2);
+    text-decoration: none;
+  }
+  .hub-nav a:hover {
+    color: var(--texto);
+  }
+  .hub-topo__acoes {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: auto;
+  }
+  .hub-tema {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--texto-2);
+    cursor: pointer;
+  }
+  .hub-tema:hover {
+    background: var(--sup-2);
+    color: var(--texto);
+  }
+
+  /* ---------- tipografia ---------- */
+
+  .hub-olho {
+    font-size: var(--t-14);
+    font-weight: 650;
+    color: var(--texto-2);
+    letter-spacing: 0.02em;
+  }
+  .hub-titulo {
+    margin-top: 1rem;
+    font-size: clamp(2.4rem, 1.4rem + 3.4vw, 4.25rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 0.98;
+  }
+  .hub-titulo span {
+    color: var(--texto-2);
+  }
+  .hub-lead {
+    margin-top: 1.5rem;
+    max-width: 52ch;
+    font-size: var(--t-20);
+    line-height: 1.5;
+    color: var(--texto-2);
+  }
+  .hub-h2 {
+    margin-top: 0.75rem;
+    font-size: var(--t-44);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+  }
+  .hub-sub {
+    margin-top: 1rem;
+    max-width: 60ch;
+    font-size: var(--t-18);
+    color: var(--texto-2);
+  }
+  .hub-btn {
+    min-height: 48px;
+    padding-inline: 1.25rem;
+    font-size: var(--t-16);
+  }
+  .hub-btn__foto {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  .hub-link {
+    display: inline-block;
+    margin-top: 1.5rem;
+    color: var(--acao-link);
+    font-weight: 650;
+    text-underline-offset: 3px;
+  }
+
+  /* ---------- abertura ---------- */
+
+  .hub-hero {
+    padding-block: clamp(2.5rem, 1rem + 5vw, 5.5rem) clamp(3rem, 1rem + 6vw, 6rem);
+    overflow: hidden;
+  }
+  .hub-hero__grade {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    align-items: center;
+    gap: clamp(2rem, 1rem + 4vw, 5rem);
+  }
+  .hub-hero__acoes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 2rem;
+  }
+  .hub-rostos {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 2.25rem;
+    font-size: var(--t-14);
+    color: var(--texto-2);
+  }
+  .hub-rostos__fotos {
+    display: flex;
+    flex: none;
+  }
+  .hub-rostos__fotos img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 0 0 3px var(--fundo);
+  }
+  .hub-rostos__fotos img + img {
+    margin-left: -12px;
+  }
+
+  .hub-palco {
+    position: relative;
+    aspect-ratio: 1 / 0.92;
+  }
+  /* o símbolo da marca atrás das telas: a folha do gabarito com o X marcado */
+  .hub-palco__marca {
+    --agua-marca: #00959a;
+    position: absolute;
+    inset: -4% -2% auto auto;
+    width: 64%;
+    height: auto;
+  }
+  .hub-janela {
+    position: absolute;
+    left: 0;
+    top: 22%;
+    width: 86%;
+    margin: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--sup);
+    box-shadow:
+      0 0 0 1px var(--linha),
+      0 30px 60px -20px var(--sombra-forte);
+  }
+  .hub-janela__barra {
+    display: flex;
+    gap: 6px;
+    padding: 10px 12px;
+    background: var(--sup-2);
+    border-bottom: 1px solid var(--linha);
+  }
+  .hub-janela__barra i {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--linha-forte);
+  }
+  .hub-janela img,
+  .modulo-linha__tela > img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .hub-celular {
+    position: absolute;
+    right: 2%;
+    bottom: -4%;
+    width: 25%;
+    margin: 0;
+    padding: 6px;
+    border-radius: 26px;
+    background: var(--forte);
+    box-shadow: 0 30px 60px -16px var(--sombra-forte);
+  }
+  .hub-celular img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 20px;
+  }
+  .hub-evento {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.6rem 0.9rem 0.6rem 0.6rem;
+    border-radius: 12px;
+    background: var(--sup);
+    box-shadow:
+      0 0 0 1px var(--linha),
+      0 14px 30px -10px var(--sombra-forte);
+    font-size: var(--t-12);
+    color: var(--texto-2);
+    white-space: nowrap;
+    animation: flutuar 6s ease-in-out infinite;
+  }
+  .hub-evento img {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  .hub-evento > span:last-child {
+    display: grid;
+  }
+  .hub-evento strong {
+    color: var(--texto);
+    font-size: var(--t-14);
+  }
+  .hub-evento__ok {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--sup-2);
+    color: var(--ok);
+    font-weight: 800;
+  }
+  .hub-evento--1 {
+    left: -4%;
+    top: 6%;
+  }
+  .hub-evento--2 {
+    right: 18%;
+    top: 14%;
+    animation-delay: -2s;
+  }
+  .hub-evento--3 {
+    left: 8%;
+    bottom: 0;
+    animation-delay: -4s;
+  }
+  @keyframes flutuar {
+    50% {
+      transform: translateY(-6px);
+    }
+  }
+
+  /* ---------- seções ---------- */
+
+  .hub-secao {
+    padding-block: clamp(4rem, 2rem + 6vw, 7.5rem);
+    border-top: 1px solid var(--linha);
+  }
+  .hub-secao--contraste {
+    background: var(--sup);
+  }
+
+  /* trilho do fluxo */
+  .trilho {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin-top: 3.5rem;
+    padding: 0;
+    list-style: none;
+  }
+  .trilho::before {
+    content: "";
+    position: absolute;
+    left: 28px;
+    right: 28px;
+    top: 28px;
+    height: 2px;
+    background: var(--linha-forte);
+  }
+  .trilho__link {
+    position: relative;
+    display: grid;
+    grid-template-rows: auto auto auto 1fr auto;
+    align-content: start;
+    gap: 0.35rem;
+    height: 100%;
+    padding: 0 0.25rem 1rem 0;
+    text-decoration: none;
+    color: inherit;
+  }
+  .trilho__marco {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    margin-bottom: 0.9rem;
+    border-radius: 50%;
+    background: var(--sup);
+    box-shadow: 0 0 0 1px var(--linha-forte);
+    color: var(--texto);
+    font-size: var(--t-20);
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    transition: background-color 200ms var(--ease), color 200ms var(--ease);
+  }
+  .hub-secao--contraste .trilho__marco {
+    background: var(--fundo);
+  }
+  .trilho__link:hover .trilho__marco,
+  .trilho__link:focus-visible .trilho__marco {
+    background: var(--forte);
+    color: var(--sobre-forte);
+  }
+  .trilho__titulo {
+    font-size: var(--t-20);
+    font-weight: 800;
+  }
+  .trilho__quem {
+    font-size: var(--t-12);
+    font-weight: 650;
+    color: var(--texto-2);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .trilho__acontece {
+    font-size: var(--t-14);
+    color: var(--texto-2);
+    line-height: 1.5;
+  }
+  .trilho__ir {
+    align-self: end;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+    font-size: var(--t-14);
+    font-weight: 650;
+    color: var(--acao-link);
+  }
+  .trilho__ir img {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  .trilho__link:hover .trilho__ir {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .trilho__volta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 2rem;
+    padding: 1rem 1.25rem;
+    border-radius: var(--r-2);
+    background: var(--sup-2);
+    color: var(--texto-2);
+    font-size: var(--t-14);
+  }
+  .trilho__volta svg {
+    flex: none;
+    color: var(--texto);
+  }
+
+  /* uma ação, várias telas */
+  .hub-juntos {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: clamp(2rem, 1rem + 4vw, 5rem);
+    align-items: start;
+  }
+  .reflexos {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: reflexo;
+    border-top: 1px solid var(--forte);
+  }
+  .reflexos li {
+    display: grid;
+    grid-template-columns: 2.25rem 13rem minmax(0, 1fr);
+    gap: 0.5rem 1rem;
+    padding: 1.1rem 0;
+    border-bottom: 1px solid var(--linha);
+    counter-increment: reflexo;
+  }
+  .reflexos li::before {
+    content: counter(reflexo, decimal-leading-zero);
+    font-size: var(--t-12);
+    font-weight: 700;
+    color: var(--texto-2);
+    padding-top: 0.2rem;
+    font-variant-numeric: tabular-nums;
+  }
+  .reflexos__quando {
+    font-weight: 750;
+  }
+  .reflexos__entao {
+    color: var(--texto-2);
+  }
+
+  /* módulos */
+  .modulos {
+    display: grid;
+    gap: clamp(3.5rem, 2rem + 4vw, 6rem);
+    margin-top: 4rem;
+  }
+  .modulo-linha {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    align-items: center;
+    gap: clamp(2rem, 1rem + 4vw, 5rem);
+  }
+  .modulo-linha--inversa .modulo-linha__texto {
+    order: 2;
+  }
+  .modulo-linha__n {
+    font-size: var(--t-14);
+    font-weight: 650;
+    color: var(--texto-2);
+  }
+  .modulo-linha__titulo {
+    margin-top: 0.5rem;
+    font-size: var(--t-32);
+    font-weight: 800;
+    letter-spacing: -0.015em;
+  }
+  .modulo-linha__resolve {
+    margin-top: 0.75rem;
+    font-size: var(--t-18);
+    color: var(--texto-2);
+  }
+  .modulo-linha__itens {
+    display: grid;
+    gap: 0.5rem;
+    margin: 1.5rem 0 1.75rem;
+  }
+  .modulo-linha__itens li {
+    display: flex;
+    gap: 0.6rem;
+    font-weight: 550;
+  }
+  .modulo-linha__itens li::before {
+    content: "";
+    flex: none;
+    width: 6px;
+    height: 6px;
+    margin-top: 0.6em;
+    border-radius: 50%;
+    background: var(--texto-2);
+  }
+  .modulo-linha__tela {
+    position: relative;
+    margin: 0;
+    border-radius: 12px;
+    background: var(--sup);
+    box-shadow:
+      0 0 0 1px var(--linha),
+      0 30px 60px -24px var(--sombra-forte);
+  }
+  .modulo-linha__tela > .hub-janela__barra {
+    border-radius: 12px 12px 0 0;
+  }
+  .modulo-linha__tela > img {
+    border-radius: 0 0 12px 12px;
+  }
+  .modulo-linha__tela--com-celular {
+    margin-right: 6%;
+  }
+  .modulo-linha__celular {
+    position: absolute;
+    right: -7%;
+    bottom: -8%;
+    width: 24%;
+    padding: 5px;
+    border-radius: 22px;
+    background: var(--forte);
+    box-shadow: 0 24px 48px -12px var(--sombra-forte);
+  }
+  .modulo-linha__celular img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 17px;
+  }
+
+  /* antes e depois */
+  .mudancas {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin-top: 3rem;
+  }
+  .mudancas li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem 1.4rem;
+    border-radius: var(--r-2);
+    background: var(--fundo);
+    box-shadow: 0 0 0 1px var(--linha);
+  }
+  .mudancas__antes {
+    color: var(--texto-2);
+    text-decoration: line-through;
+    text-decoration-color: var(--linha-forte);
+  }
+  .mudancas__seta {
+    color: var(--texto-2);
+  }
+  .mudancas__depois {
+    font-weight: 700;
+  }
+
+  /* fechamento */
+  .hub-fim {
+    padding-block: clamp(4rem, 2rem + 6vw, 7rem);
+    background: var(--forte);
+    color: var(--sobre-forte);
+  }
+  .hub-fim .hub-sub {
+    color: color-mix(in srgb, var(--sobre-forte) 72%, transparent);
+  }
+  .hub-fim__grade {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) auto;
+    align-items: end;
+    gap: 2rem;
+  }
+  .hub-fim .btn--secundario {
+    background: transparent;
+    color: var(--sobre-forte);
+    border-color: color-mix(in srgb, var(--sobre-forte) 40%, transparent);
+  }
+  .hub-fim .btn--primario {
+    background: var(--sobre-forte);
+    color: var(--forte);
+  }
+
+  .hub-rodape {
+    padding-block: 2rem;
+    font-size: var(--t-14);
+    color: var(--texto-2);
+  }
+  .hub-rodape__linha {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem 2rem;
+  }
+  .hub-rodape a {
+    color: inherit;
+  }
+
+  /* ---------- telas menores ---------- */
+
+  @media (max-width: 1100px) {
+    .trilho {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      row-gap: 2.5rem;
+    }
+    .trilho::before {
+      display: none;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .hub-nav {
+      display: none;
+    }
+    .hub-hero__grade,
+    .hub-juntos,
+    .modulo-linha,
+    .hub-fim__grade {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .modulo-linha--inversa .modulo-linha__texto {
+      order: 0;
+    }
+    .hub-palco {
+      margin-top: 1rem;
+    }
+    .mudancas {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .hub-topo__barra {
+      gap: 0.75rem;
+    }
+    .hub-marca span {
+      display: none;
+    }
+    .trilho {
+      grid-template-columns: minmax(0, 1fr);
+      row-gap: 0;
+    }
+    .trilho::before {
+      display: block;
+      left: 27px;
+      right: auto;
+      top: 28px;
+      bottom: 28px;
+      width: 2px;
+      height: auto;
+    }
+    .trilho__link {
+      grid-template-columns: 56px minmax(0, 1fr);
+      column-gap: 1rem;
+      padding-bottom: 1.75rem;
+    }
+    .trilho__marco {
+      grid-row: 1 / span 5;
+      align-self: start;
+      margin: -0.6rem 0 0;
+    }
+    .hub-evento {
+      display: none;
+    }
+    .hub-evento--1 {
+      display: flex;
+      left: 0;
+      top: 0;
+    }
+    .reflexos li {
+      grid-template-columns: 2rem minmax(0, 1fr);
+    }
+    .reflexos__entao {
+      grid-column: 2;
+    }
+    .mudancas li {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.25rem;
+    }
+    .mudancas__seta {
+      display: none;
+    }
+    .modulo-linha__celular {
+      right: -4%;
+      width: 30%;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hub-evento {
+      animation: none;
+    }
+  }
+</style>

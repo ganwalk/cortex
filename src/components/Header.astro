@@ -1,0 +1,335 @@
+---
+import { acessos } from "../data/site";
+import Logo from "./Logo.astro";
+
+const links = [
+  { rotulo: "Turmas", href: "#turmas" },
+  { rotulo: "Rotina", href: "#rotina" },
+  { rotulo: "Prova de Bolsas", href: "#bolsas" },
+  { rotulo: "Onde fica", href: "#contato" },
+];
+---
+
+<header class="topo" data-topo>
+  <div class="wrap topo__barra">
+    <a class="topo__marca" href="/site/" aria-label="Colégio Córtex, página inicial">
+      <Logo />
+    </a>
+
+    <nav class="topo__nav" aria-label="Principal">
+      <ul role="list">
+        {links.map((l) => <li><a href={l.href}>{l.rotulo}</a></li>)}
+        <li>
+          <details class="acesso">
+            <summary>Área do aluno</summary>
+            <ul role="list" class="acesso__lista">
+              {acessos.map((a) => <li><a href={a.href} rel="noopener">{a.rotulo}</a></li>)}
+            </ul>
+          </details>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="topo__acoes">
+      <a class="botao topo__cta" href="#visita">Agendar visita</a>
+      <button class="topo__menu" type="button" aria-expanded="false" aria-controls="menu-movel" data-menu>
+        <span class="sr-only">Abrir menu</span>
+        <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path class="i-abrir" d="M3 7h18M3 12h18M3 17h18" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path class="i-fechar" d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="movel" id="menu-movel" hidden>
+    <nav class="wrap" aria-label="Menu">
+      <ul role="list">
+        {links.map((l) => <li><a href={l.href}>{l.rotulo}</a></li>)}
+      </ul>
+      <p class="movel__rotulo">Área do aluno</p>
+      <ul role="list" class="movel__acessos">
+        {acessos.map((a) => <li><a href={a.href} rel="noopener">{a.rotulo}</a></li>)}
+      </ul>
+      <a class="botao" href="#visita">Agendar visita</a>
+    </nav>
+  </div>
+</header>
+
+<script>
+  /*
+    Enquanto a hero está na tela, o menu é a faixa branca de cima da moldura e o topo arredondado da hero fica preso
+    logo abaixo dela: a moldura "fecha" de cima para baixo (--corte, lido em Hero.astro). A pílula só aparece quando
+    a hero sai inteira da tela.
+  */
+  const topo = document.querySelector<HTMLElement>("[data-topo]")!;
+  const hero = document.querySelector<HTMLElement>("[data-hero]");
+  let pedido = 0;
+  const medir = () => {
+    pedido = 0;
+    if (!hero) return topo.classList.add("solto");
+    const fundoMenu = topo.getBoundingClientRect().bottom;
+    const h = hero.getBoundingClientRect();
+    const corte = Math.min(h.height, Math.max(0, fundoMenu - h.top));
+    hero.style.setProperty("--corte", `${corte.toFixed(1)}px`);
+    topo.classList.toggle("solto", h.bottom <= fundoMenu);
+  };
+  addEventListener("scroll", () => (pedido ||= requestAnimationFrame(medir)), { passive: true });
+  addEventListener("resize", medir);
+  medir();
+
+  const botao = document.querySelector<HTMLButtonElement>("[data-menu]");
+  const painel = document.getElementById("menu-movel");
+  if (botao && painel) {
+    const fechar = () => {
+      botao.setAttribute("aria-expanded", "false");
+      botao.querySelector(".sr-only")!.textContent = "Abrir menu";
+      painel.hidden = true;
+    };
+    botao.addEventListener("click", () => {
+      const aberto = botao.getAttribute("aria-expanded") === "true";
+      if (aberto) return fechar();
+      botao.setAttribute("aria-expanded", "true");
+      botao.querySelector(".sr-only")!.textContent = "Fechar menu";
+      painel.hidden = false;
+    });
+    painel.addEventListener("click", (e) => {
+      if ((e.target as HTMLElement).closest("a")) fechar();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !painel.hidden) {
+        fechar();
+        botao.focus();
+      }
+    });
+  }
+
+  document.addEventListener("click", (e) => {
+    document.querySelectorAll<HTMLDetailsElement>("details.acesso[open]").forEach((d) => {
+      if (!d.contains(e.target as Node)) d.open = false;
+    });
+  });
+</script>
+
+<style>
+  /*
+    O menu é sempre a mesma pílula branca. No topo da página ela fica sobre a faixa branca acima da hero, sem
+    sombra, e por isso some no fundo; ao rolar, passa por cima da hero. A sombra só aparece fora da primeira dobra.
+  */
+  .topo {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    isolation: isolate;
+  }
+
+  /* marca à esquerda, navegação centralizada, CTA à direita */
+  .topo__barra {
+    position: relative;
+    height: var(--header-h);
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  /* faixa branca da moldura enquanto a hero está na tela */
+  .topo {
+    background: var(--branco);
+    transition: background-color 200ms var(--ease);
+  }
+
+  .topo.solto {
+    background: transparent;
+  }
+
+  /* pílula: só depois da hero */
+  .topo__barra::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    /* 10 px de respiro em volta do CTA (40 px de altura numa pílula de 60); a ponta esquerda, toda redonda, abraça o logo */
+    inset: 6px max(6px, calc(var(--gutter) - 10px)) 6px max(6px, calc(var(--gutter) - 30px));
+    background: var(--branco);
+    border-radius: 999px;
+    box-shadow: 0 0 0 1px rgb(28 37 41 / 0.08), 0 6px 14px rgb(28 37 41 / 0.12);
+    opacity: 0;
+    transform: translateY(-6px);
+    transition:
+      opacity 220ms var(--ease),
+      transform 220ms var(--ease);
+  }
+
+  .topo.solto .topo__barra::before {
+    opacity: 1;
+    transform: none;
+  }
+
+  .topo__marca {
+    justify-self: start;
+  }
+
+  .topo__marca {
+    text-decoration: none;
+  }
+
+  .topo__nav > ul {
+    display: flex;
+    align-items: center;
+    gap: 1.75rem;
+  }
+
+  .topo__nav a,
+  .acesso summary {
+    font-size: var(--t-14);
+    font-weight: 550;
+    text-decoration: none;
+    color: var(--tinta);
+    padding-block: 0.75rem;
+  }
+
+  .topo__nav a:hover,
+  .acesso summary:hover {
+    color: var(--agua-700);
+  }
+
+  .topo__acoes {
+    grid-column: 3;
+    justify-self: end;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .acesso {
+    position: relative;
+  }
+
+  .acesso summary {
+    list-style: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+  }
+
+  .acesso summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .acesso summary::after {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: translateY(-2px) rotate(45deg);
+  }
+
+  .acesso__lista {
+    position: absolute;
+    right: 50%;
+    transform: translateX(50%);
+    top: calc(100% + 0.5rem);
+    min-width: 220px;
+    background: var(--branco);
+    border: 1px solid var(--filete);
+    border-radius: var(--r-2);
+    box-shadow: 0 8px 14px rgb(31 42 47 / 0.08);
+    padding: 0.375rem;
+  }
+
+  .acesso__lista a {
+    display: block;
+    padding: 0.625rem 0.75rem;
+    border-radius: var(--r-1);
+    text-decoration: none;
+    font-size: var(--t-14);
+  }
+
+  .acesso__lista a:hover {
+    background: var(--nevoa);
+  }
+
+  .topo__cta {
+    min-height: 40px;
+    padding: 0.5rem 1rem;
+    font-size: var(--t-14);
+    /* totalmente arredondado, concêntrico às pontas da pílula */
+    border-radius: 999px;
+    padding-inline: 1.25rem;
+  }
+
+  .topo__menu .i-fechar,
+  .topo__menu[aria-expanded="true"] .i-abrir {
+    display: none;
+  }
+
+  .topo__menu[aria-expanded="true"] .i-fechar {
+    display: inline;
+  }
+
+  .topo__menu {
+    display: none;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    background: transparent;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: var(--r-1);
+  }
+
+  .movel {
+    border-top: 1px solid var(--filete);
+    background: var(--papel);
+    padding-block: 1rem 1.5rem;
+  }
+
+  .movel ul a {
+    display: block;
+    padding: 0.75rem 0;
+    font-size: var(--t-20);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .movel__rotulo {
+    margin-top: 1rem;
+    font-size: var(--t-14);
+    color: var(--tinta-2);
+  }
+
+  .movel__acessos a {
+    font-size: var(--t-16) !important;
+    font-weight: 500 !important;
+    padding: 0.5rem 0 !important;
+  }
+
+  .movel .botao {
+    margin-top: 1rem;
+    width: 100%;
+  }
+
+  @media (max-width: 1080px) {
+    .topo__nav {
+      display: none;
+    }
+    .topo__menu {
+      display: inline-flex;
+    }
+  }
+
+  @media (max-width: 720px) {
+    .topo__barra {
+      padding-inline: 28px 16px;
+    }
+    .topo__cta {
+      display: none;
+    }
+  }
+
+  @media (min-width: 1081px) {
+    .movel {
+      display: none;
+    }
+  }
+</style>
