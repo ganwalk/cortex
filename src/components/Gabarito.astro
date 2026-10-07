@@ -1,0 +1,427 @@
+---
+import { turmas } from "../data/site";
+
+/*
+  Gabarito para marcar, logo abaixo da abertura. O símbolo do Córtex é uma folha de gabarito com o X marcado; aqui a
+  pessoa responde três perguntas, cada bolha recebe o X e, no fim, aparece o caminho dela no colégio, com o botão
+  que já preenche o formulário de visita.
+*/
+const perguntas = [
+  {
+    id: "serie",
+    texto: "Em que série você vai estudar em 2027?",
+    opcoes: turmas.map((t) => ({ id: t.id, rotulo: t.nome })),
+  },
+  {
+    id: "prova",
+    texto: "Qual prova está no seu horizonte?",
+    opcoes: [
+      { id: "enem", rotulo: "Enem" },
+      { id: "ueg", rotulo: "Vestibular UEG" },
+      { id: "outro", rotulo: "Outro vestibular" },
+      { id: "nao-sei", rotulo: "Ainda não sei" },
+    ],
+  },
+  {
+    id: "comeco",
+    texto: "Por onde você quer começar?",
+    opcoes: [
+      { id: "visita", rotulo: "Conhecer o colégio" },
+      { id: "prova", rotulo: "Prova de Bolsas" },
+      { id: "informacoes", rotulo: "Tirar dúvidas" },
+    ],
+  },
+];
+const LETRAS = ["A", "B", "C", "D"];
+---
+
+<section class="caminhos" aria-labelledby="caminhos-titulo" data-caminhos>
+  <div class="wrap caminhos__grid">
+    <div class="caminhos__texto">
+      <h2 id="caminhos-titulo" class="titulo h2">Marque o seu caminho</h2>
+      <p class="lead">
+        Três perguntas, do jeito de um gabarito. Com as respostas, aparece o que o Córtex tem para a sua série e o botão
+        que leva a escolha até o formulário de visita.
+      </p>
+    </div>
+
+    <form class="gabarito" data-gabarito aria-labelledby="gabarito-titulo" novalidate>
+      <header class="gabarito__topo">
+        <p id="gabarito-titulo" class="gabarito__titulo">Gabarito · Colégio Córtex</p>
+        <p class="gabarito__progresso" aria-live="polite" data-progresso>0 de 3</p>
+      </header>
+
+      {
+        perguntas.map((q, n) => (
+          <fieldset class="questao" data-questao={q.id}>
+            <legend class="questao__enunciado">
+              <span class="questao__n" aria-hidden="true">{String(n + 1).padStart(2, "0")}</span>
+              {q.texto}
+            </legend>
+            <div class="questao__opcoes">
+              {q.opcoes.map((o, i) => (
+                <label class="opcao">
+                  <input type="radio" name={q.id} value={o.id} />
+                  <span class="opcao__bolha" aria-hidden="true">
+                    {LETRAS[i]}
+                  </span>
+                  <span class="opcao__rotulo">{o.rotulo}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+        ))
+      }
+
+      <div class="gabarito__resultado" data-resultado aria-live="polite">
+        <p class="gabarito__vazio" data-vazio>Marque as três respostas para ver o seu caminho no Córtex.</p>
+        <div class="caminho" data-caminho hidden>
+          <p class="caminho__titulo">Seu caminho no Córtex</p>
+          <ul class="caminho__lista" role="list" data-linhas></ul>
+          <a class="botao caminho__acao" href="#visita" data-acao>Agendar visita</a>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <script type="application/json" data-turmas set:html={JSON.stringify(turmas)} />
+</section>
+
+<script>
+  interface Turma {
+    id: string;
+    nome: string;
+    para: string;
+    provaDeBolsas: boolean;
+  }
+  const secao = document.querySelector<HTMLElement>("[data-caminhos]")!;
+  const turmas: Turma[] = JSON.parse(secao.querySelector("[data-turmas]")!.textContent!);
+  const form = secao.querySelector<HTMLFormElement>("[data-gabarito]")!;
+  const progresso = form.querySelector<HTMLElement>("[data-progresso]")!;
+  const vazio = form.querySelector<HTMLElement>("[data-vazio]")!;
+  const caminho = form.querySelector<HTMLElement>("[data-caminho]")!;
+  const linhas = form.querySelector<HTMLUListElement>("[data-linhas]")!;
+  const acao = form.querySelector<HTMLAnchorElement>("[data-acao]")!;
+  const provaBolsas = form.querySelector<HTMLInputElement>("input[name=comeco][value=prova]")!;
+
+  const PROVA: Record<string, string> = {
+    enem: "Nos simulados, você vê os acertos em cada área do Enem e a diferença para o simulado anterior.",
+    ueg: "A redação é corrigida pelo professor, com nota e comentário, e o plantão de dúvidas tem fila pelo celular.",
+    outro: "A redação é corrigida pelo professor, com nota e comentário, e o plantão de dúvidas tem fila pelo celular.",
+    "nao-sei": "O Vestibulando Cast, o podcast do Córtex, conversa sobre vestibular no YouTube e no Spotify.",
+  };
+  const BOTAO: Record<string, (t: Turma) => string> = {
+    visita: (t) => `Agendar visita para a ${t.nome}`,
+    prova: (t) => `Inscrever na Prova de Bolsas da ${t.nome}`,
+    informacoes: (t) => `Tirar dúvidas sobre a ${t.nome}`,
+  };
+
+  const valor = (nome: string) => form.querySelector<HTMLInputElement>(`input[name=${nome}]:checked`)?.value;
+
+  function atualizar() {
+    const serie = valor("serie");
+    const turma = turmas.find((t) => t.id === serie);
+    // a Prova de Bolsas não vale para o Extensivo
+    provaBolsas.disabled = !!turma && !turma.provaDeBolsas;
+    if (provaBolsas.disabled && provaBolsas.checked) provaBolsas.checked = false;
+    const respostas = [serie, valor("prova"), valor("comeco")];
+    const feitas = respostas.filter(Boolean).length;
+    progresso.textContent = `${feitas} de 3`;
+    form.querySelectorAll<HTMLElement>("[data-questao]").forEach((q) => q.classList.toggle("feita", !!valor(q.dataset.questao!)));
+    if (feitas < 3 || !turma) {
+      vazio.hidden = false;
+      vazio.textContent = turma && !turma.provaDeBolsas && !valor("comeco") ? "No Extensivo, a matrícula é com visita ou conversa com a secretaria." : "Marque as três respostas para ver o seu caminho no Córtex.";
+      caminho.hidden = true;
+      return;
+    }
+    const itens = [
+      `${turma.nome}: ${turma.para.charAt(0).toLowerCase()}${turma.para.slice(1)}`,
+      turma.provaDeBolsas ? "Vale a Prova de Bolsas, com até 100% de desconto e inscrição grátis." : "A matrícula pode ser feita pelo próprio aluno maior de idade.",
+      PROVA[respostas[1]!],
+    ];
+    linhas.replaceChildren(
+      ...itens.map((t) => {
+        const li = document.createElement("li");
+        li.textContent = t;
+        return li;
+      }),
+    );
+    acao.textContent = BOTAO[respostas[2]!](turma);
+    vazio.hidden = true;
+    caminho.hidden = false;
+  }
+
+  form.addEventListener("change", atualizar);
+  form.addEventListener("submit", (e) => e.preventDefault());
+  // o botão leva a série e o caminho escolhidos para o formulário de visita
+  acao.addEventListener("click", () => {
+    document.dispatchEvent(new CustomEvent("escolher-serie", { detail: { serie: valor("serie"), interesse: valor("comeco") } }));
+  });
+  atualizar();
+</script>
+
+<style>
+  .caminhos {
+    padding-block: clamp(4rem, 2rem + 6vw, 7rem);
+    border-top: 1px solid var(--filete);
+    background:
+      radial-gradient(circle at 1px 1px, rgb(10 29 59 / 0.07) 1px, transparent 0) 0 0 / 22px 22px,
+      var(--papel);
+  }
+
+  .caminhos__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 30rem);
+    align-items: start;
+    gap: clamp(2.5rem, 2rem + 4vw, 6rem);
+  }
+
+  .caminhos__texto .lead {
+    margin-top: 1rem;
+  }
+
+  /* ---------- gabarito ---------- */
+
+  .gabarito {
+    padding: clamp(1.25rem, 1rem + 1vw, 1.75rem);
+    border: 1px solid var(--filete);
+    border-radius: 20px;
+    background: var(--branco);
+    box-shadow: 0 40px 80px -40px rgb(10 29 59 / 0.28);
+  }
+
+  .gabarito__topo {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--filete);
+  }
+
+  .gabarito__titulo {
+    font-size: var(--t-12);
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--tinta-2);
+  }
+
+  .gabarito__progresso {
+    font-size: var(--t-12);
+    font-variant-numeric: tabular-nums;
+    color: var(--tinta-2);
+  }
+
+  .questao {
+    margin: 0;
+    padding: 1.1rem 0 1.15rem;
+    border: 0;
+    border-bottom: 1px solid var(--filete);
+  }
+
+  .questao__enunciado {
+    float: left;
+    width: 100%;
+    display: flex;
+    gap: 0.75rem;
+    font-size: var(--t-16);
+    font-weight: 600;
+    color: var(--marinho);
+  }
+
+  .questao__n {
+    flex: none;
+    width: 1.75rem;
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+    color: var(--agua-700);
+  }
+
+  .questao__opcoes {
+    clear: both;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.25rem 0.75rem;
+    padding: 0.6rem 0 0 2.5rem;
+  }
+
+  .opcao {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-height: 44px;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+
+  .opcao input {
+    position: absolute;
+    opacity: 0;
+    inset: 0;
+    cursor: pointer;
+  }
+
+  .opcao__bolha {
+    position: relative;
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border: 1.5px solid var(--gelo);
+    border-radius: 50%;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--tinta-2);
+    transition:
+      border-color 160ms var(--ease),
+      background-color 200ms var(--ease),
+      color 160ms var(--ease);
+  }
+
+  /* o X da marca, desenhado em duas hastes que crescem ao marcar */
+  .opcao__bolha::before,
+  .opcao__bolha::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 2.5px;
+    height: 16px;
+    margin: -8px 0 0 -1.25px;
+    border-radius: 2px;
+    background: var(--branco);
+    transform: rotate(40deg) scaleY(0);
+    transition: transform 220ms var(--ease);
+  }
+
+  .opcao__bolha::after {
+    transform: rotate(-40deg) scaleY(0);
+    transition-delay: 60ms;
+  }
+
+  .opcao__rotulo {
+    font-size: var(--t-14);
+    color: var(--tinta);
+  }
+
+  .opcao:hover .opcao__bolha {
+    border-color: var(--marinho);
+    color: var(--marinho);
+  }
+
+  .opcao input:checked + .opcao__bolha {
+    border-color: var(--marinho);
+    background: var(--marinho);
+    color: transparent;
+  }
+
+  .opcao input:checked + .opcao__bolha::before {
+    transform: rotate(40deg) scaleY(1);
+  }
+
+  .opcao input:checked + .opcao__bolha::after {
+    transform: rotate(-40deg) scaleY(1);
+  }
+
+  .opcao input:checked ~ .opcao__rotulo {
+    font-weight: 600;
+    color: var(--marinho);
+  }
+
+  .opcao input:focus-visible + .opcao__bolha {
+    outline: 2px solid var(--agua-700);
+    outline-offset: 3px;
+  }
+
+  .opcao input:disabled + .opcao__bolha,
+  .opcao input:disabled ~ .opcao__rotulo {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+
+  .opcao:has(input:disabled) {
+    cursor: not-allowed;
+  }
+
+  .questao.feita .questao__n {
+    color: var(--marinho);
+  }
+
+  .gabarito__resultado {
+    padding-top: 1.1rem;
+    min-height: 3rem;
+  }
+
+  .gabarito__vazio {
+    font-size: var(--t-14);
+    color: var(--tinta-2);
+  }
+
+  .caminho__titulo {
+    font-size: var(--t-12);
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--agua-700);
+  }
+
+  .caminho__lista {
+    margin: 0.75rem 0 1.25rem;
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .caminho__lista :global(li) {
+    position: relative;
+    padding-left: 1.25rem;
+    font-size: var(--t-14);
+    line-height: 1.5;
+    color: var(--tinta);
+  }
+
+  .caminho__lista :global(li)::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.55em;
+    width: 7px;
+    height: 7px;
+    border-radius: 2px;
+    background: var(--agua);
+    transform: rotate(45deg);
+  }
+
+  .caminho__acao {
+    width: 100%;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .caminho:not([hidden]) {
+      animation: surge 360ms var(--ease) both;
+    }
+  }
+
+  @keyframes surge {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+  }
+
+  @media (max-width: 1000px) {
+    .caminhos__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .gabarito {
+      max-width: 34rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .questao__opcoes {
+      padding-left: 0;
+    }
+  }
+</style>

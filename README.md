@@ -34,11 +34,17 @@ Regras de texto e de contribuição: [`CLAUDE.md`](CLAUDE.md).
 
 - **Cor:** marinho da marca (`#0A1D3B`) como base escura; verde-água (`#00959A`, e `#007479` para texto e botões, por contraste) como única cor de ação; amarelo (`#FBD953`) só como destaque pontual, no sublinhado, como nas peças da campanha. Neutros frios puxados para o marinho. As cores foram tiradas do logotipo e da peça da Prova de Bolsas.
 - **Tipo:** Montserrat nos títulos, em peso 650, e Inter no texto corrido. A fonte oficial da marca não foi confirmada.
-- **Estrutura:** fundo claro, filetes finos, muito espaço e cor só na ação. A marca aparece no gabarito: bolhas que recebem o X do símbolo.
+- **Estrutura:** fundo claro, filetes finos, muito espaço e cor só na ação. A marca aparece no gabarito (bolhas que recebem o X do símbolo) e na rede de neurônios do córtex, na hero e no vídeo.
 
 ### Hero
 
-O título é a frase da campanha (“Você já sabe onde quer chegar. Agora escolha onde vai começar.”). Ao lado, um gabarito para marcar, com três perguntas: a série em 2027, a prova que a pessoa quer prestar e por onde quer começar (visita, Prova de Bolsas ou dúvidas). Cada bolha marcada recebe o X da marca. Com as três respostas, aparece o caminho da pessoa no Córtex e um botão que leva a série e a escolha até o formulário de visita. Quando a série é o Extensivo, a opção da Prova de Bolsas fica desligada. `prefers-reduced-motion` desliga as animações.
+O título é a frase da campanha (“Você já sabe onde quer chegar. Agora escolha onde vai começar.”), com os botões de visita e da Prova de Bolsas. Ao lado, o retrato de um aluno desenhado com cerca de 11 mil pontos tirados da própria foto, em WebGL com a biblioteca [OGL](https://github.com/oframe/ogl) (escolhida no lugar do Three.js por ser bem menor para uma camada só de pontos). Os pontos se desfazem numa rede de neurônios no formato de um cérebro, o mesmo do vídeo, e se juntam no rosto do próximo aluno. O cursor ou o dedo afasta os pontos, e os botões com as fotos trocam o retrato. A animação para quando a hero sai da tela. Sem WebGL, ou com `prefers-reduced-motion`, fica a foto parada e os botões só trocam a foto.
+
+As fotos são do Pexels e os nomes são fictícios (`public/plataforma/pessoas/CREDITOS.md`). Para produção, trocar por fotos de alunos do Córtex, com autorização.
+
+### Marque o seu caminho
+
+Logo abaixo da hero, um gabarito com três perguntas: a série em 2027, a prova que a pessoa quer prestar e por onde quer começar (visita, Prova de Bolsas ou dúvidas). Cada bolha marcada recebe o X da marca. Com as três respostas, aparece o caminho da pessoa no Córtex e um botão que leva a série e a escolha até o formulário de visita. Quando a série é o Extensivo, a opção da Prova de Bolsas fica desligada.
 
 ### Seções
 

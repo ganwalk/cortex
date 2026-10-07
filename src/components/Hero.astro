@@ -1,214 +1,415 @@
 ---
-import { CAMPANHA, turmas } from "../data/site";
+import { CAMPANHA } from "../data/site";
 
 /*
-  Hero com um gabarito para marcar. O símbolo do Córtex é uma folha de gabarito com o X marcado; aqui a pessoa
-  responde três perguntas, cada bolha recebe o X e, no fim, aparece o caminho dela no colégio, com o botão que
-  já preenche o formulário de visita. Sem foto: a interação mostra o que o colégio oferece.
+  Abertura do site. À direita, o retrato de um aluno desenhado com milhares de pontos tirados da própria foto
+  (WebGL, com a biblioteca OGL). Os pontos se desfazem numa rede de neurônios no formato de um cérebro e se
+  juntam no rosto do próximo aluno. O cursor ou o dedo afasta os pontos; os botões com as fotos trocam o retrato.
+  Sem WebGL, ou com movimento reduzido, fica a foto parada.
+  As fotos são do Pexels (public/plataforma/pessoas/CREDITOS.md) e os nomes são fictícios.
 */
-const perguntas = [
-  {
-    id: "serie",
-    texto: "Em que série você vai estudar em 2027?",
-    opcoes: turmas.map((t) => ({ id: t.id, rotulo: t.nome })),
-  },
-  {
-    id: "prova",
-    texto: "Qual prova está no seu horizonte?",
-    opcoes: [
-      { id: "enem", rotulo: "Enem" },
-      { id: "ueg", rotulo: "Vestibular UEG" },
-      { id: "outro", rotulo: "Outro vestibular" },
-      { id: "nao-sei", rotulo: "Ainda não sei" },
-    ],
-  },
-  {
-    id: "comeco",
-    texto: "Por onde você quer começar?",
-    opcoes: [
-      { id: "visita", rotulo: "Conhecer o colégio" },
-      { id: "prova", rotulo: "Prova de Bolsas" },
-      { id: "informacoes", rotulo: "Tirar dúvidas" },
-    ],
-  },
+const ROSTOS = [
+  { id: "larissa", nome: "Larissa", serie: "Extensivo" },
+  { id: "joao-pedro-silva", nome: "João Pedro", serie: "3ª série" },
+  { id: "rafaela-castro", nome: "Rafaela", serie: "2ª série" },
+  { id: "mateus-oliveira", nome: "Mateus", serie: "1ª série" },
 ];
-const LETRAS = ["A", "B", "C", "D"];
+const foto = (id: string) => `/plataforma/pessoas/${id}.jpg`;
 ---
 
 <section class="hero" aria-labelledby="hero-titulo" data-hero>
   <div class="wrap hero__grid">
     <div class="hero__texto">
-      <p class="hero__rotulo">Ensino Médio e Pré-Vestibular · Setor Bueno, Goiânia</p>
       <h1 id="hero-titulo" class="titulo hero__titulo">
-        {CAMPANHA.linha1}
+        <span class="hero__linha1">{CAMPANHA.linha1}</span>
         <span class="hero__linha2">{CAMPANHA.linha2}</span>
       </h1>
       <p class="hero__lead">
-        1ª, 2ª e 3ª séries do Ensino Médio e o Extensivo, na Rua T-53. Marque o gabarito e veja o seu caminho no Córtex.
+        Ensino Médio e Pré-Vestibular na Rua T-53, Setor Bueno, em Goiânia. Venha conhecer o colégio ou faça a Prova de
+        Bolsas, com até 100% de desconto para a 1ª, a 2ª e a 3ª série.
       </p>
       <div class="hero__acoes">
         <a class="botao" href="#visita">Agendar visita</a>
-        <a class="hero__link" href="#turmas">Ver as turmas</a>
+        <a class="botao botao--linha" href="#bolsas">Prova de Bolsas</a>
       </div>
     </div>
 
-    <form class="gabarito" data-gabarito aria-labelledby="gabarito-titulo" novalidate>
-      <header class="gabarito__topo">
-        <p id="gabarito-titulo" class="gabarito__titulo">Gabarito · Colégio Córtex</p>
-        <p class="gabarito__progresso" aria-live="polite" data-progresso>0 de 3</p>
-      </header>
-
-      {
-        perguntas.map((q, n) => (
-          <fieldset class="questao" data-questao={q.id}>
-            <legend class="questao__enunciado">
-              <span class="questao__n" aria-hidden="true">{String(n + 1).padStart(2, "0")}</span>
-              {q.texto}
-            </legend>
-            <div class="questao__opcoes">
-              {q.opcoes.map((o, i) => (
-                <label class="opcao">
-                  <input type="radio" name={q.id} value={o.id} />
-                  <span class="opcao__bolha" aria-hidden="true">
-                    {LETRAS[i]}
-                  </span>
-                  <span class="opcao__rotulo">{o.rotulo}</span>
-                </label>
-              ))}
-            </div>
-          </fieldset>
-        ))
-      }
-
-      <div class="gabarito__resultado" data-resultado aria-live="polite">
-        <p class="gabarito__vazio" data-vazio>Marque as três respostas para ver o seu caminho no Córtex.</p>
-        <div class="caminho" data-caminho hidden>
-          <p class="caminho__titulo">Seu caminho no Córtex</p>
-          <ul class="caminho__lista" role="list" data-linhas></ul>
-          <a class="botao caminho__acao" href="#visita" data-acao>Agendar visita</a>
-        </div>
+    <figure class="retrato" data-retrato>
+      <div class="retrato__palco">
+        <img class="retrato__foto" src={foto(ROSTOS[0].id)} alt="" width="192" height="192" data-foto />
+        <canvas class="retrato__tela" aria-hidden="true" data-tela></canvas>
       </div>
-    </form>
+      <figcaption class="retrato__legenda">
+        <span class="retrato__nome" data-nome>{ROSTOS[0].nome}</span>
+        <span class="retrato__serie" data-serie>{ROSTOS[0].serie}</span>
+      </figcaption>
+      <div class="retrato__trocas" role="group" aria-label="Trocar o retrato">
+        {
+          ROSTOS.map((r, i) => (
+            <button type="button" class="retrato__troca" aria-pressed={i === 0 ? "true" : "false"} aria-label={`Mostrar ${r.nome}, ${r.serie}`} data-troca={i}>
+              <img src={foto(r.id)} alt="" width="36" height="36" loading="lazy" />
+            </button>
+          ))
+        }
+      </div>
+    </figure>
   </div>
 
-  <script type="application/json" data-turmas set:html={JSON.stringify(turmas)} />
+  <script type="application/json" data-rostos set:html={JSON.stringify(ROSTOS.map((r) => ({ ...r, src: foto(r.id) })))} />
 </section>
 
 <script>
-  interface Turma {
-    id: string;
+  import { Renderer, Program, Geometry, Mesh } from "ogl";
+
+  interface Rosto {
     nome: string;
-    para: string;
-    provaDeBolsas: boolean;
+    serie: string;
+    src: string;
   }
+
   const hero = document.querySelector<HTMLElement>("[data-hero]")!;
-  const turmas: Turma[] = JSON.parse(hero.querySelector("[data-turmas]")!.textContent!);
-  const form = hero.querySelector<HTMLFormElement>("[data-gabarito]")!;
-  const progresso = form.querySelector<HTMLElement>("[data-progresso]")!;
-  const vazio = form.querySelector<HTMLElement>("[data-vazio]")!;
-  const caminho = form.querySelector<HTMLElement>("[data-caminho]")!;
-  const linhas = form.querySelector<HTMLUListElement>("[data-linhas]")!;
-  const acao = form.querySelector<HTMLAnchorElement>("[data-acao]")!;
-  const provaBolsas = form.querySelector<HTMLInputElement>("input[name=comeco][value=prova]")!;
+  const figura = hero.querySelector<HTMLElement>("[data-retrato]")!;
+  const tela = hero.querySelector<HTMLCanvasElement>("[data-tela]")!;
+  const nome = hero.querySelector<HTMLElement>("[data-nome]")!;
+  const serie = hero.querySelector<HTMLElement>("[data-serie]")!;
+  const fotoFixa = hero.querySelector<HTMLImageElement>("[data-foto]")!;
+  const trocas = [...hero.querySelectorAll<HTMLButtonElement>("[data-troca]")];
+  const ROSTOS: Rosto[] = JSON.parse(hero.querySelector("[data-rostos]")!.textContent!);
 
-  const PROVA: Record<string, string> = {
-    enem: "Nos simulados, você vê os acertos em cada área do Enem e a diferença para o simulado anterior.",
-    ueg: "A redação é corrigida pelo professor, com nota e comentário, e o plantão de dúvidas tem fila pelo celular.",
-    outro: "A redação é corrigida pelo professor, com nota e comentário, e o plantão de dúvidas tem fila pelo celular.",
-    "nao-sei": "O Vestibulando Cast, o podcast do Córtex, conversa sobre vestibular no YouTube e no Spotify.",
-  };
-  const BOTAO: Record<string, (t: Turma) => string> = {
-    visita: (t) => `Agendar visita para a ${t.nome}`,
-    prova: (t) => `Inscrever na Prova de Bolsas da ${t.nome}`,
-    informacoes: (t) => `Tirar dúvidas sobre a ${t.nome}`,
-  };
+  const LADO = 120; // pontos por lado da foto
+  const ESCALA = 0.92; // quanto do quadro o retrato ocupa
 
-  const valor = (nome: string) => form.querySelector<HTMLInputElement>(`input[name=${nome}]:checked`)?.value;
+  /* o cérebro de perfil, numa caixa de 1000 x 760, igual ao do vídeo */
+  const CONTORNO =
+    "M150 470 C88 384 104 236 226 152 C330 80 500 46 624 78 C766 112 884 204 902 332 C916 420 884 494 806 520 C846 562 832 650 742 662 C662 672 612 624 600 584 C556 604 468 612 398 592 C330 572 300 546 290 524 C248 544 188 522 150 470 Z";
 
-  function atualizar() {
-    const serie = valor("serie");
-    const turma = turmas.find((t) => t.id === serie);
-    // a Prova de Bolsas não vale para o Extensivo
-    provaBolsas.disabled = !!turma && !turma.provaDeBolsas;
-    if (provaBolsas.disabled && provaBolsas.checked) provaBolsas.checked = false;
-    const respostas = [serie, valor("prova"), valor("comeco")];
-    const feitas = respostas.filter(Boolean).length;
-    progresso.textContent = `${feitas} de 3`;
-    form.querySelectorAll<HTMLElement>("[data-questao]").forEach((q) => q.classList.toggle("feita", !!valor(q.dataset.questao!)));
-    if (feitas < 3 || !turma) {
-      vazio.hidden = false;
-      vazio.textContent = turma && !turma.provaDeBolsas && !valor("comeco") ? "No Extensivo, a matrícula é com visita ou conversa com a secretaria." : "Marque as três respostas para ver o seu caminho no Córtex.";
-      caminho.hidden = true;
-      return;
+  let semente = 7;
+  const sorte = () => (semente = (semente * 16807) % 2147483647) / 2147483647;
+
+  /* cores de cada ponto, lidas da foto num quadro de LADO x LADO */
+  function lerCores(img: HTMLImageElement) {
+    const c = document.createElement("canvas");
+    c.width = c.height = LADO;
+    const ctx = c.getContext("2d", { willReadFrequently: true })!;
+    ctx.drawImage(img, 0, 0, LADO, LADO);
+    return ctx.getImageData(0, 0, LADO, LADO).data;
+  }
+
+  const carregar = (src: string) =>
+    new Promise<HTMLImageElement>((ok, falha) => {
+      const img = new Image();
+      img.onload = () => ok(img);
+      img.onerror = falha;
+      img.src = src;
+    });
+
+  /* uma rede de neurônios dentro do contorno; cada ponto do retrato ganha um lugar nela */
+  function montarRede(n: number) {
+    const ctx = document.createElement("canvas").getContext("2d")!;
+    const forma = new Path2D(CONTORNO);
+    const nos: [number, number][] = [];
+    for (let i = 0; i < 5000 && nos.length < 70; i++) {
+      const x = 90 + sorte() * 830,
+        y = 40 + sorte() * 640;
+      if (ctx.isPointInPath(forma, x, y) && nos.every(([a, b]) => Math.hypot(a - x, b - y) > 70)) nos.push([x, y]);
     }
-    const itens = [
-      `${turma.nome}: ${turma.para.charAt(0).toLowerCase()}${turma.para.slice(1)}`,
-      turma.provaDeBolsas ? "Vale a Prova de Bolsas, com até 100% de desconto e inscrição grátis." : "A matrícula pode ser feita pelo próprio aluno maior de idade.",
-      PROVA[respostas[1]!],
-    ];
-    linhas.replaceChildren(
-      ...itens.map((t) => {
-        const li = document.createElement("li");
-        li.textContent = t;
-        return li;
+    const arestas: [number, number][] = [];
+    nos.forEach(([x, y], i) => {
+      nos
+        .map(([a, b], j) => [j, Math.hypot(a - x, b - y)] as [number, number])
+        .filter(([j, d]) => j > i && d < 150)
+        .sort((u, v) => u[1] - v[1])
+        .slice(0, 3)
+        .forEach(([j]) => arestas.push([i, j]));
+    });
+    const paraTela = (x: number, y: number) => [((x - 500) / 500) * ESCALA, (-(y - 370) / 500) * ESCALA];
+    const pos = new Float32Array(n * 2);
+    for (let i = 0; i < n; i++) {
+      let x: number, y: number;
+      if (sorte() < 0.22) {
+        // perto de um neurônio
+        [x, y] = nos[Math.floor(sorte() * nos.length)];
+        const a = sorte() * 6.283,
+          r = Math.sqrt(sorte()) * 9;
+        x += Math.cos(a) * r;
+        y += Math.sin(a) * r;
+      } else {
+        // ao longo de uma ligação
+        const [a, b] = arestas[Math.floor(sorte() * arestas.length)];
+        const t = sorte();
+        x = nos[a][0] + (nos[b][0] - nos[a][0]) * t + (sorte() - 0.5) * 3;
+        y = nos[a][1] + (nos[b][1] - nos[a][1]) * t + (sorte() - 0.5) * 3;
+      }
+      const [px, py] = paraTela(x, y);
+      pos[i * 2] = px;
+      pos[i * 2 + 1] = py;
+    }
+    return pos;
+  }
+
+  const VERTICE = /* glsl */ `
+    attribute vec2 aRosto;
+    attribute vec2 aRede;
+    attribute vec3 aCorA;
+    attribute vec3 aCorB;
+    attribute float aSorte;
+    uniform float uTempo;
+    uniform float uRede;
+    uniform float uMistura;
+    uniform vec2 uPonteiro;
+    uniform float uForca;
+    uniform float uTamanho;
+    varying vec3 vCor;
+    varying float vRede;
+    void main() {
+      float d = clamp(uRede * 1.5 - aSorte * 0.5, 0.0, 1.0);
+      d = d * d * (3.0 - 2.0 * d);
+      vec2 p = mix(aRosto, aRede, d);
+      // no meio do caminho, os pontos fazem uma curva
+      float meio = sin(d * 3.14159);
+      p += meio * 0.14 * vec2(sin(aSorte * 41.0 + uTempo * 0.7), cos(aSorte * 57.0 + uTempo * 0.6));
+      // respiração leve, para o retrato não ficar parado
+      p += 0.0035 * vec2(sin(uTempo * 1.2 + aSorte * 30.0), cos(uTempo * 1.1 + aSorte * 23.0));
+      // o cursor afasta os pontos
+      vec2 dif = p - uPonteiro;
+      float dist = length(dif);
+      p += normalize(dif + 1e-5) * uForca * smoothstep(0.32, 0.0, dist) * 0.16;
+      gl_Position = vec4(p, 0.0, 1.0);
+      vec3 cor = mix(aCorA, aCorB, uMistura);
+      float luz = dot(cor, vec3(0.299, 0.587, 0.114));
+      vec3 rede = mix(vec3(0.039, 0.114, 0.231), vec3(0.0, 0.584, 0.604), step(0.62, aSorte));
+      vCor = mix(cor, rede, d);
+      vRede = d;
+      gl_PointSize = uTamanho * mix(mix(1.25, 0.55, luz), 0.62, d);
+    }
+  `;
+  const FRAGMENTO = /* glsl */ `
+    precision mediump float;
+    varying vec3 vCor;
+    varying float vRede;
+    void main() {
+      vec2 c = gl_PointCoord - 0.5;
+      float r = length(c);
+      if (r > 0.5) discard;
+      float a = smoothstep(0.5, 0.32, r);
+      gl_FragColor = vec4(vCor, a * mix(1.0, 0.85, vRede));
+    }
+  `;
+
+  const reduzir = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  async function iniciar() {
+    const imagens = await Promise.all(ROSTOS.map((r) => carregar(r.src)));
+    const cores = imagens.map(lerCores);
+
+    // só os pontos dentro do círculo do retrato
+    const celulas: number[] = [];
+    for (let y = 0; y < LADO; y++)
+      for (let x = 0; x < LADO; x++) {
+        const dx = (x + 0.5) / LADO - 0.5,
+          dy = (y + 0.5) / LADO - 0.5;
+        if (Math.hypot(dx, dy) < 0.5) celulas.push(y * LADO + x);
+      }
+    const n = celulas.length;
+    const rosto = new Float32Array(n * 2);
+    const acaso = new Float32Array(n);
+    celulas.forEach((c, i) => {
+      const x = c % LADO,
+        y = Math.floor(c / LADO);
+      rosto[i * 2] = (((x + 0.5) / LADO) * 2 - 1) * ESCALA;
+      rosto[i * 2 + 1] = -(((y + 0.5) / LADO) * 2 - 1) * ESCALA;
+      acaso[i] = sorte();
+    });
+    const corDe = (k: number) => {
+      const d = cores[k],
+        out = new Float32Array(n * 3);
+      celulas.forEach((c, i) => {
+        // um pouco mais de contraste, para os pontos lerem bem no fundo branco
+        for (let j = 0; j < 3; j++) out[i * 3 + j] = Math.min(1, Math.max(0, ((d[c * 4 + j] / 255 - 0.5) * 1.12 + 0.48)));
+      });
+      return out;
+    };
+    const paletas = ROSTOS.map((_, k) => corDe(k));
+
+    const renderer = new Renderer({ canvas: tela, dpr: Math.min(devicePixelRatio, 2), alpha: true, antialias: false, premultipliedAlpha: false });
+    const gl = renderer.gl;
+    gl.clearColor(0, 0, 0, 0);
+
+    const geometria = new Geometry(gl, {
+      aRosto: { size: 2, data: rosto },
+      aRede: { size: 2, data: montarRede(n) },
+      aCorA: { size: 3, data: paletas[0].slice() },
+      aCorB: { size: 3, data: paletas[1 % paletas.length].slice() },
+      aSorte: { size: 1, data: acaso },
+    });
+    const programa = new Program(gl, {
+      vertex: VERTICE,
+      fragment: FRAGMENTO,
+      transparent: true,
+      depthTest: false,
+      uniforms: {
+        uTempo: { value: 0 },
+        uRede: { value: 1 },
+        uMistura: { value: 0 },
+        uPonteiro: { value: [9, 9] },
+        uForca: { value: 0 },
+        uTamanho: { value: 4 },
+      },
+    });
+    const pontos = new Mesh(gl, { mode: gl.POINTS, geometry: geometria, program: programa });
+
+    // mede o quadro, não o canvas: o OGL escreve a largura no próprio canvas
+    const palco = tela.parentElement!;
+    function medir() {
+      const lado = palco.clientWidth;
+      renderer.setSize(lado, lado);
+      // o tamanho do ponto acompanha a distância entre os pontos da grade
+      programa.uniforms.uTamanho.value = ((lado * ESCALA) / LADO) * 1.35 * renderer.dpr;
+    }
+    medir();
+    new ResizeObserver(medir).observe(palco);
+
+    /* ciclo de cada retrato, em segundos: junta, fica, desfaz, rede */
+    const JUNTA = 1.6,
+      FICA = 4.6,
+      DESFAZ = 1.3,
+      REDE = 0.8;
+    const CICLO = JUNTA + FICA + DESFAZ + REDE;
+    let atual = 0,
+      proximo = 1 % ROSTOS.length,
+      inicio = performance.now() / 1000;
+
+    const suave = (x: number) => (x <= 0 ? 0 : x >= 1 ? 1 : x * x * (3 - 2 * x));
+
+    function mostrarLegenda(i: number) {
+      nome.textContent = ROSTOS[i].nome;
+      serie.textContent = ROSTOS[i].serie;
+      trocas.forEach((b, k) => b.setAttribute("aria-pressed", String(k === i)));
+      figura.classList.remove("trocou");
+      void figura.offsetWidth;
+      figura.classList.add("trocou");
+    }
+
+    function escolherProximo(i: number) {
+      proximo = i;
+      const b = geometria.attributes.aCorB;
+      (b.data as Float32Array).set(paletas[i]);
+      b.needsUpdate = true;
+    }
+
+    // troca pelos botões: desfaz o retrato agora e junta o escolhido
+    trocas.forEach((b, i) =>
+      b.addEventListener("click", () => {
+        if (i === atual && fase() < JUNTA + FICA) return;
+        escolherProximo(i);
+        const f = fase();
+        if (f < JUNTA + FICA) inicio = performance.now() / 1000 - (JUNTA + FICA);
       }),
     );
-    acao.textContent = BOTAO[respostas[2]!](turma);
-    vazio.hidden = true;
-    caminho.hidden = false;
+    const fase = () => (performance.now() / 1000 - inicio) % CICLO;
+
+    // cursor e dedo, em coordenadas da tela do WebGL
+    let alvoForca = 0;
+    const ponteiro = programa.uniforms.uPonteiro.value as number[];
+    tela.addEventListener("pointermove", (e) => {
+      const r = tela.getBoundingClientRect();
+      ponteiro[0] = ((e.clientX - r.left) / r.width) * 2 - 1;
+      ponteiro[1] = -(((e.clientY - r.top) / r.height) * 2 - 1);
+      alvoForca = 1;
+    });
+    tela.addEventListener("pointerleave", () => (alvoForca = 0));
+
+    let visivel = true,
+      quadro = 0;
+    function desenhar(agora: number) {
+      quadro = requestAnimationFrame(desenhar);
+      if (!visivel) return;
+      const t = agora / 1000;
+      let f = t - inicio;
+      if (f >= CICLO) {
+        // terminou o ciclo: o próximo vira o atual
+        inicio += CICLO * Math.floor(f / CICLO);
+        f = t - inicio;
+        atual = proximo;
+        const a = geometria.attributes.aCorA;
+        (a.data as Float32Array).set(paletas[atual]);
+        a.needsUpdate = true;
+        escolherProximo((atual + 1) % ROSTOS.length);
+        mostrarLegenda(atual);
+      }
+      let rede: number;
+      if (f < JUNTA) rede = 1 - suave(f / JUNTA);
+      else if (f < JUNTA + FICA) rede = 0;
+      else if (f < JUNTA + FICA + DESFAZ) rede = suave((f - JUNTA - FICA) / DESFAZ);
+      else rede = 1;
+      const u = programa.uniforms;
+      u.uTempo.value = t;
+      u.uRede.value = rede;
+      u.uMistura.value = f > JUNTA + FICA + DESFAZ * 0.6 ? 1 : 0;
+      u.uForca.value += (alvoForca * (1 - rede) - u.uForca.value) * 0.08;
+      renderer.render({ scene: pontos });
+    }
+
+    new IntersectionObserver(([e]) => (visivel = e.isIntersecting)).observe(tela);
+    document.addEventListener("visibilitychange", () => (visivel = !document.hidden));
+    figura.dataset.gl = "ligado";
+    quadro = requestAnimationFrame(desenhar);
+    return () => cancelAnimationFrame(quadro);
   }
 
-  form.addEventListener("change", atualizar);
-  form.addEventListener("submit", (e) => e.preventDefault());
-  // o botão leva a série e o caminho escolhidos para o formulário de visita
-  acao.addEventListener("click", () => {
-    document.dispatchEvent(new CustomEvent("escolher-serie", { detail: { serie: valor("serie"), interesse: valor("comeco") } }));
-  });
-  atualizar();
+  // sem WebGL ou com movimento reduzido, a foto parada fica no lugar e os botões só trocam a foto
+  const temGL = !!document.createElement("canvas").getContext("webgl");
+  if (temGL && !reduzir) {
+    iniciar().catch(() => delete figura.dataset.gl);
+  } else {
+    trocas.forEach((b, i) =>
+      b.addEventListener("click", () => {
+        fotoFixa.src = ROSTOS[i].src;
+        nome.textContent = ROSTOS[i].nome;
+        serie.textContent = ROSTOS[i].serie;
+        trocas.forEach((x, k) => x.setAttribute("aria-pressed", String(k === i)));
+      }),
+    );
+  }
 </script>
 
 <style>
   .hero {
     position: relative;
-    padding-block: clamp(2.5rem, 1rem + 5vw, 6rem) clamp(3.5rem, 2rem + 5vw, 7rem);
+    overflow: hidden;
+    padding-block: clamp(2rem, 1rem + 4vw, 5rem) clamp(3rem, 2rem + 4vw, 6rem);
     background:
-      radial-gradient(circle at 1px 1px, rgb(10 29 59 / 0.07) 1px, transparent 0) 0 0 / 22px 22px,
+      radial-gradient(60rem 40rem at 78% 40%, rgb(0 149 154 / 0.07), transparent 60%),
       var(--papel);
   }
 
   .hero__grid {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 30rem);
-    align-items: start;
-    gap: clamp(2.5rem, 2rem + 4vw, 6rem);
-  }
-
-  .hero__texto {
-    padding-top: clamp(0rem, -2rem + 6vw, 4.5rem);
-  }
-
-  .hero__rotulo {
-    font-size: var(--t-14);
-    font-weight: 600;
-    color: var(--agua-700);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(2rem, 1rem + 4vw, 5rem);
   }
 
   .hero__titulo {
-    margin-top: 1rem;
-    font-size: clamp(2.125rem, 1.5rem + 2.2vw, 3.375rem);
-    line-height: 1.06;
+    font-size: clamp(2.375rem, 1.4rem + 3.4vw, 4.25rem);
+    line-height: 1.04;
+    letter-spacing: -0.025em;
     color: var(--marinho);
+  }
+
+  .hero__linha1 {
+    display: block;
   }
 
   .hero__linha2 {
     display: block;
-    color: var(--tinta-2);
-    font-weight: 500;
+    margin-top: 0.15em;
+    color: var(--agua-700);
   }
 
   .hero__lead {
     margin-top: 1.5rem;
-    max-width: 32em;
+    max-width: 34em;
     font-size: var(--t-18);
     line-height: 1.6;
     color: var(--tinta-2);
@@ -218,8 +419,7 @@ const LETRAS = ["A", "B", "C", "D"];
     margin-top: 2rem;
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
-    gap: 1rem 1.75rem;
+    gap: 0.75rem;
   }
 
   .hero .botao {
@@ -227,262 +427,148 @@ const LETRAS = ["A", "B", "C", "D"];
     padding-inline: 1.5rem;
   }
 
-  .hero__link {
-    display: inline-flex;
-    align-items: center;
-    min-height: 44px;
-    font-weight: 600;
-    color: var(--marinho);
-    text-decoration-color: var(--amarelo);
-    text-decoration-thickness: 2px;
-    text-underline-offset: 0.3em;
-  }
+  /* ---------- retrato ---------- */
 
-  /* ---------- gabarito ---------- */
-
-  .gabarito {
-    padding: clamp(1.25rem, 1rem + 1vw, 1.75rem);
-    border: 1px solid var(--filete);
-    border-radius: 20px;
-    background: var(--branco);
-    box-shadow: 0 40px 80px -40px rgb(10 29 59 / 0.28);
-  }
-
-  .gabarito__topo {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid var(--filete);
-  }
-
-  .gabarito__titulo {
-    font-size: var(--t-12);
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--tinta-2);
-  }
-
-  .gabarito__progresso {
-    font-size: var(--t-12);
-    font-variant-numeric: tabular-nums;
-    color: var(--tinta-2);
-  }
-
-  .questao {
+  .retrato {
+    position: relative;
     margin: 0;
-    padding: 1.1rem 0 1.15rem;
-    border: 0;
-    border-bottom: 1px solid var(--filete);
+    justify-self: center;
+    width: min(100%, 36rem);
   }
 
-  .questao__enunciado {
-    float: left;
+  .retrato__palco {
+    position: relative;
+    aspect-ratio: 1;
+  }
+
+  .retrato__foto,
+  .retrato__tela {
+    position: absolute;
+    inset: 0;
     width: 100%;
-    display: flex;
-    gap: 0.75rem;
-    font-size: var(--t-16);
-    font-weight: 600;
+    height: 100%;
+  }
+
+  .retrato__foto {
+    inset: 4%;
+    width: 92%;
+    height: 92%;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .retrato__tela {
+    opacity: 0;
+    touch-action: pan-y;
+  }
+
+  .retrato[data-gl="ligado"] .retrato__foto {
+    opacity: 0;
+  }
+
+  .retrato[data-gl="ligado"] .retrato__tela {
+    opacity: 1;
+    transition: opacity 600ms var(--ease);
+  }
+
+  .retrato__legenda {
+    position: absolute;
+    left: 4%;
+    bottom: 10%;
+    display: grid;
+    padding: 0.6rem 1rem;
+    border: 1px solid var(--filete);
+    border-radius: 14px;
+    background: rgb(255 255 255 / 0.9);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 18px 40px -18px rgb(10 29 59 / 0.35);
+  }
+
+  .retrato__nome {
+    font-family: var(--fonte-titulo);
+    font-weight: 650;
     color: var(--marinho);
   }
 
-  .questao__n {
-    flex: none;
-    width: 1.75rem;
-    font-variant-numeric: tabular-nums;
-    font-weight: 500;
-    color: var(--agua-700);
+  .retrato__serie {
+    font-size: var(--t-14);
+    color: var(--tinta-2);
   }
 
-  .questao__opcoes {
-    clear: both;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.25rem 0.75rem;
-    padding: 0.6rem 0 0 2.5rem;
-  }
-
-  .opcao {
-    position: relative;
+  .retrato__trocas {
+    margin-top: 0.75rem;
     display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    min-height: 44px;
-    border-radius: 999px;
-    cursor: pointer;
+    justify-content: center;
+    gap: 0.25rem;
   }
 
-  .opcao input {
-    position: absolute;
-    opacity: 0;
-    inset: 0;
-    cursor: pointer;
-  }
-
-  .opcao__bolha {
-    position: relative;
-    flex: none;
+  .retrato__troca {
     display: grid;
     place-items: center;
-    width: 30px;
-    height: 30px;
-    border: 1.5px solid var(--gelo);
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 0;
     border-radius: 50%;
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--tinta-2);
+    background: none;
+    cursor: pointer;
+  }
+
+  .retrato__troca img {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    object-fit: cover;
+    opacity: 0.55;
+    filter: grayscale(1);
+    outline: 2px solid transparent;
+    outline-offset: 2px;
     transition:
-      border-color 160ms var(--ease),
-      background-color 200ms var(--ease),
-      color 160ms var(--ease);
+      opacity 200ms var(--ease),
+      filter 200ms var(--ease),
+      outline-color 200ms var(--ease);
   }
 
-  /* o X da marca, desenhado em duas hastes que crescem ao marcar */
-  .opcao__bolha::before,
-  .opcao__bolha::after {
-    content: "";
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    width: 2.5px;
-    height: 16px;
-    margin: -8px 0 0 -1.25px;
-    border-radius: 2px;
-    background: var(--branco);
-    transform: rotate(40deg) scaleY(0);
-    transition: transform 220ms var(--ease);
+  .retrato__troca:hover img,
+  .retrato__troca[aria-pressed="true"] img {
+    opacity: 1;
+    filter: none;
   }
 
-  .opcao__bolha::after {
-    transform: rotate(-40deg) scaleY(0);
-    transition-delay: 60ms;
+  .retrato__troca[aria-pressed="true"] img {
+    outline-color: var(--agua);
   }
 
-  .opcao__rotulo {
-    font-size: var(--t-14);
-    color: var(--tinta);
-  }
-
-  .opcao:hover .opcao__bolha {
-    border-color: var(--marinho);
-    color: var(--marinho);
-  }
-
-  .opcao input:checked + .opcao__bolha {
-    border-color: var(--marinho);
-    background: var(--marinho);
-    color: transparent;
-  }
-
-  .opcao input:checked + .opcao__bolha::before {
-    transform: rotate(40deg) scaleY(1);
-  }
-
-  .opcao input:checked + .opcao__bolha::after {
-    transform: rotate(-40deg) scaleY(1);
-  }
-
-  .opcao input:checked ~ .opcao__rotulo {
-    font-weight: 600;
-    color: var(--marinho);
-  }
-
-  .opcao input:focus-visible + .opcao__bolha {
+  .retrato__troca:focus-visible {
     outline: 2px solid var(--agua-700);
-    outline-offset: 3px;
-  }
-
-  .opcao input:disabled + .opcao__bolha,
-  .opcao input:disabled ~ .opcao__rotulo {
-    opacity: 0.35;
-    cursor: not-allowed;
-  }
-
-  .opcao:has(input:disabled) {
-    cursor: not-allowed;
-  }
-
-  .questao.feita .questao__n {
-    color: var(--marinho);
-  }
-
-  .gabarito__resultado {
-    padding-top: 1.1rem;
-    min-height: 3rem;
-  }
-
-  .gabarito__vazio {
-    font-size: var(--t-14);
-    color: var(--tinta-2);
-  }
-
-  .caminho__titulo {
-    font-size: var(--t-12);
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--agua-700);
-  }
-
-  .caminho__lista {
-    margin: 0.75rem 0 1.25rem;
-    display: grid;
-    gap: 0.5rem;
-  }
-
-  .caminho__lista :global(li) {
-    position: relative;
-    padding-left: 1.25rem;
-    font-size: var(--t-14);
-    line-height: 1.5;
-    color: var(--tinta);
-  }
-
-  .caminho__lista :global(li)::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 0.55em;
-    width: 7px;
-    height: 7px;
-    border-radius: 2px;
-    background: var(--agua);
-    transform: rotate(45deg);
-  }
-
-  .caminho__acao {
-    width: 100%;
+    outline-offset: 2px;
   }
 
   @media (prefers-reduced-motion: no-preference) {
-    .caminho:not([hidden]) {
-      animation: surge 360ms var(--ease) both;
+    .retrato.trocou .retrato__legenda {
+      animation: legenda 500ms var(--ease) both;
     }
   }
 
-  @keyframes surge {
+  @keyframes legenda {
     from {
       opacity: 0;
-      transform: translateY(6px);
+      transform: translateY(8px);
     }
   }
 
-  @media (max-width: 1000px) {
+  @media (max-width: 900px) {
     .hero__grid {
       grid-template-columns: minmax(0, 1fr);
     }
-    .gabarito {
-      max-width: 34rem;
+    .retrato {
+      width: min(100%, 26rem);
     }
   }
 
   @media (max-width: 480px) {
-    .questao__opcoes {
-      padding-left: 0;
-    }
     .hero__acoes .botao {
-      width: 100%;
+      flex: 1 1 100%;
     }
   }
 </style>
